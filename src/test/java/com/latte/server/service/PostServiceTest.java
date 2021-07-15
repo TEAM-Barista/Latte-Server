@@ -36,7 +36,7 @@ public class PostServiceTest {
         int isQna = 0;
 
         //when
-        System.out.println("user.getUserId() = " + user.getUserId());
+        System.out.println("user.getId() = " + user.getId());
         Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
 
         //then
@@ -45,6 +45,34 @@ public class PostServiceTest {
         Assertions.assertThat(post.getPostHit()).isEqualTo(0);
         Assertions.assertThat(post.getPostTitle()).isEqualTo("test title");
         Assertions.assertThat(post.getPostCode()).isEqualTo("#stdio.h");
+        Assertions.assertThat(post.getIsQna()).isEqualTo(0);
+    }
+
+    @Test
+    public void 포스트_수정() {
+        //given
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        int isQna = 0;
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+
+        String updateContent = "update content";
+        String updataeTitle = "update title";
+        String updateCode = "update code";
+        int updateQna = 1;
+
+        //when
+        postService.update(postId, updateContent, updataeTitle, updateCode, updateQna);
+
+        //then
+        Post post = postRepository.findOne(postId);
+        Assertions.assertThat(post.getPostContent()).isEqualTo("update content");
+        Assertions.assertThat(post.getPostTitle()).isEqualTo("update title");
+        Assertions.assertThat(post.getPostCode()).isEqualTo("update code");
+        Assertions.assertThat(post.getIsQna()).isEqualTo(1);
+
     }
 
     private User createUser() {
