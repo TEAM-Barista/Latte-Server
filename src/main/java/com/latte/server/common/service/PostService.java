@@ -20,13 +20,13 @@ public class PostService {
      * Post
      */
     @Transactional
-    public Long post(Long userId, String postContent, String postTitle, String postCode) {
+    public Long post(Long userId, String postContent, String postTitle, String postCode, int isQna) {
         int basePostHit = 0;
 
         // 엔티티 조회
         User user = userRepository.findOne(userId);
 
-        Post post = Post.createPost(user, postContent, basePostHit, postTitle, postCode);
+        Post post = Post.createPost(user, postContent, basePostHit, postTitle, postCode, isQna);
 
         postRepository.save(post);
 

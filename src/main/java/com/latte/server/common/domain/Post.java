@@ -51,7 +51,7 @@ public class Post {
     private int isQna;
 
     // == 생성 메서드 == //
-    public static Post createPost(User user, String postContent, int postHit, String postTitle, String postCode) {
+    public static Post createPost(User user, String postContent, int postHit, String postTitle, String postCode, int isQna) {
         Post post = new Post();
         post.setUser(user);
         post.setPostContent(postContent);
@@ -62,6 +62,7 @@ public class Post {
         post.setUpdatedAt(LocalDateTime.now());
         post.setDeletedAt(LocalDateTime.now());
         post.setIsDeleted(0);
+        post.setIsQna(isQna);
         return post;
     }
 }

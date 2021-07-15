@@ -33,10 +33,11 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
+        int isQna = 0;
 
         //when
         System.out.println("user.getUserId() = " + user.getUserId());
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
 
         //then
         Post post = postRepository.findOne(postId);
@@ -44,8 +45,6 @@ public class PostServiceTest {
         Assertions.assertThat(post.getPostHit()).isEqualTo(0);
         Assertions.assertThat(post.getPostTitle()).isEqualTo("test title");
         Assertions.assertThat(post.getPostCode()).isEqualTo("#stdio.h");
-
-
     }
 
     private User createUser() {
