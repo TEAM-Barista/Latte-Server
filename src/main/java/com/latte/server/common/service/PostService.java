@@ -33,4 +33,11 @@ public class PostService {
         return post.getId();
     }
 
+    public void update(Long postId, String postContent, String postTitle, String postCode, int isQna) {
+        Post findPost = postRepository.findOne(postId);
+        findPost.setPostContent(postContent);
+        findPost.setPostTitle(postTitle);
+        findPost.setPostCode(postCode);
+        findPost.setIsQna(isQna);
+    }
 }
