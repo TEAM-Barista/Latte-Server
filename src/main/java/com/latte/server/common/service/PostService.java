@@ -40,4 +40,9 @@ public class PostService {
         findPost.setPostCode(postCode);
         findPost.setIsQna(isQna);
     }
+
+    public void delete(Long postId) {
+        Post findPost = postRepository.findOne(postId);
+        findPost.setIsDeleted(1);
+    }
 }
