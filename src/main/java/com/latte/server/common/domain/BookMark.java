@@ -22,7 +22,7 @@ public class BookMark {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "post_id")
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @Column(name = "created_at")

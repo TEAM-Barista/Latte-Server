@@ -1,6 +1,7 @@
 package com.latte.server.common.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "USER_TB")
-@Getter
+@Getter @Setter
 public class User {
 
     @Id

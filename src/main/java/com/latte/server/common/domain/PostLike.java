@@ -20,7 +20,7 @@ public class PostLike {
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "uid")
+    @JoinColumn(name = "uid")
     private User user;
 
     @Column(name = "created_at")
