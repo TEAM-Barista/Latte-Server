@@ -36,7 +36,6 @@ public class PostServiceTest {
         int isQna = 0;
 
         //when
-        System.out.println("user.getId() = " + user.getId());
         Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
 
         //then
@@ -46,6 +45,8 @@ public class PostServiceTest {
         Assertions.assertThat(post.getPostTitle()).isEqualTo("test title");
         Assertions.assertThat(post.getPostCode()).isEqualTo("#stdio.h");
         Assertions.assertThat(post.getIsQna()).isEqualTo(0);
+        Assertions.assertThat(post.getIsDeleted()).isEqualTo(0);
+
     }
 
     @Test
@@ -73,6 +74,24 @@ public class PostServiceTest {
         Assertions.assertThat(post.getPostCode()).isEqualTo("update code");
         Assertions.assertThat(post.getIsQna()).isEqualTo(1);
 
+    }
+
+    @Test
+    public void 포스트_삭제() {
+        //given
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        int isQna = 0;
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+
+        //when
+        postService.delete(postId);
+
+        //then
+        Post post = postRepository.findOne(postId);
+        Assertions.assertThat(post.getIsDeleted()).isEqualTo(1);
     }
 
     private User createUser() {
