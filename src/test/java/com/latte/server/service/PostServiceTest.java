@@ -9,6 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import javax.persistence.EntityManager;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@MockBean(JpaMetamodelMappingContext.class)
 @Transactional
 public class PostServiceTest {
 
@@ -96,10 +99,8 @@ public class PostServiceTest {
 
     private User createUser() {
         User user = new User();
-        user.setUserName("user1");
-        user.setUserId("test");
+        user.setNickName("user1");
         user.setEmail("test@test.com");
-        user.setIntro("test intro");
         em.persist(user);
         return user;
     }

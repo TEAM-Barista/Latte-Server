@@ -2,6 +2,7 @@ package com.latte.server.common.util;
 
 import com.latte.server.post.domain.Post;
 import com.latte.server.user.domain.User;
+import com.latte.server.user.domain.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,12 +47,12 @@ public class InitDb {
         }
 
         private User createUser(String userName, String userId, String intro, int phone, String loginBy) {
-            User user = new User();
-            user.setUserName(userName);
-            user.setUserId(userId);
-            user.setIntro(intro);
-            user.setPhone(phone);
-            user.setLoginBy(loginBy);
+            User user = new User().builder()
+                    .userRole(UserRole.CLIENT)
+                    .email(userId)
+                    .nickName(userName)
+                    .password("a")
+                    .build();
             return user;
         }
 

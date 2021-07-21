@@ -24,7 +24,7 @@ public class PostService {
         int basePostHit = 0;
 
         // 엔티티 조회
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
 
         Post post = Post.createPost(user, postContent, basePostHit, postTitle, postCode, isQna);
 
