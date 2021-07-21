@@ -1,6 +1,6 @@
-package com.latte.server.common.repository;
+package com.latte.server.user.repository;
 
-import com.latte.server.common.domain.User;
+import com.latte.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

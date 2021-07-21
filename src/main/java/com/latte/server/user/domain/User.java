@@ -1,4 +1,4 @@
-package com.latte.server.common.domain;
+package com.latte.server.user.domain;
 
 import lombok.Getter;
 import lombok.Setter;

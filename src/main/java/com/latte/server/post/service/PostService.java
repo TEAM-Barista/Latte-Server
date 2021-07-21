@@ -1,9 +1,9 @@
-package com.latte.server.common.service;
+package com.latte.server.post.service;
 
-import com.latte.server.common.domain.Post;
-import com.latte.server.common.domain.User;
-import com.latte.server.common.repository.PostRepository;
-import com.latte.server.common.repository.UserRepository;
+import com.latte.server.post.domain.Post;
+import com.latte.server.user.domain.User;
+import com.latte.server.post.repository.PostRepository;
+import com.latte.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

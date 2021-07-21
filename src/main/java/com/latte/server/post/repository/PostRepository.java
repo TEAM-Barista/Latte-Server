@@ -1,6 +1,6 @@
-package com.latte.server.common.repository;
+package com.latte.server.post.repository;
 
-import com.latte.server.common.domain.Post;
+import com.latte.server.post.domain.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

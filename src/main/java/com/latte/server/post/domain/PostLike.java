@@ -1,29 +1,28 @@
-package com.latte.server.common.domain;
+package com.latte.server.post.domain;
 
-import lombok.AccessLevel;
+import com.latte.server.user.domain.User;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "BOOKMARK_TB")
+@Table(name = "POST_LIKE_TB")
 @Getter
-public class BookMark {
+public class PostLike {
 
     @Id
     @GeneratedValue
-    @Column(name = "bookmark_id")
+    @Column(name = "post_like_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uid")
-    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uid")
+    private User user;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

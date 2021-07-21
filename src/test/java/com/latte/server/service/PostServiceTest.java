@@ -1,9 +1,9 @@
 package com.latte.server.service;
 
-import com.latte.server.common.domain.Post;
-import com.latte.server.common.domain.User;
-import com.latte.server.common.repository.PostRepository;
-import com.latte.server.common.service.PostService;
+import com.latte.server.post.domain.Post;
+import com.latte.server.user.domain.User;
+import com.latte.server.post.repository.PostRepository;
+import com.latte.server.post.service.PostService;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;

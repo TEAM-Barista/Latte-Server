@@ -1,14 +1,13 @@
-package com.latte.server;
+package com.latte.server.common.util;
 
-import com.latte.server.common.domain.Post;
-import com.latte.server.common.domain.User;
+import com.latte.server.post.domain.Post;
+import com.latte.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
