@@ -29,4 +29,16 @@ public class PostRepository {
         ).getResultList();
     }
 
+    public int countReplies(Long postId) {
+        return em.createQuery(
+                "select count(r) from Reply r join r.post p where p.id = :postId"
+        ).setParameter("postId", postId).getFirstResult();
+    }
+
+    public int countPostLikes(Long postId) {
+        return em.createQuery(
+                "select count(pl) from PostLike pl join pl.post p where p.id = :postId"
+        ).setParameter("postId", postId).getFirstResult();
+    }
+
 }
