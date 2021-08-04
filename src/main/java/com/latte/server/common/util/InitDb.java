@@ -48,10 +48,10 @@ public class InitDb {
 
         private User createUser(String userName, String userId, String intro, int phone, String loginBy) {
             User user = new User().builder()
-                    .userRole(UserRole.CLIENT)
+                    .userRole(UserRole.ADMIN)
                     .email(userId)
                     .nickName(userName)
-                    .password("a")
+                    .password("$2a$10$GTHxsIH/0g0j/cv9MF9Iu.7mX.KMJvuGpDn/kMtBxIftCTgdsoLD6")
                     .build();
             return user;
         }

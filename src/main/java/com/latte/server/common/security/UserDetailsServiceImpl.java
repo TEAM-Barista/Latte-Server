@@ -1,4 +1,4 @@
-package com.latte.server.auth.service;
+package com.latte.server.common.security;
 
 import com.latte.server.common.exception.CustomException;
 import com.latte.server.user.domain.User;
