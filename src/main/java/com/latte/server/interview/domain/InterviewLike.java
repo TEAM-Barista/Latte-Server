@@ -3,7 +3,9 @@ package com.latte.server.interview.domain;
 import com.latte.server.common.domain.BaseTimeEntity;
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.user.domain.User;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -14,6 +16,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "INTERVIEW_LIKE_TB")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class InterviewLike extends BaseTimeEntity {
 
     @Id
@@ -28,4 +31,14 @@ public class InterviewLike extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid")
     private User user;
+
+    private InterviewLike(Interview interview, User user) {
+        this.interview = interview;
+        this.user = user;
+    }
+
+    // == 생성 메서드 == //
+    public static InterviewLike createInterviewLike(Interview interview, User user) {
+        return new InterviewLike(interview, user);
+    }
 }

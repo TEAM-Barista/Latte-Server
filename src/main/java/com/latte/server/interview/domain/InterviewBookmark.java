@@ -4,7 +4,9 @@ package com.latte.server.interview.domain;
 import com.latte.server.common.domain.BaseTimeEntity;
 import com.latte.server.post.domain.Post;
 import com.latte.server.user.domain.User;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -15,7 +17,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "INTERVIEW_BOOKMARK_TB")
 @Getter
-public class InterviewBookMark extends BaseTimeEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class InterviewBookmark extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
@@ -29,4 +32,14 @@ public class InterviewBookMark extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interview_id")
     private Interview interview;
+
+    private InterviewBookmark(User user, Interview interview) {
+        this.user = user;
+        this.interview = interview;
+    }
+
+    // == 생성 메서드 == //
+    public static InterviewBookmark createInterviewBookmark(Interview interview, User user) {
+        return new InterviewBookmark(user, interview);
+    }
 }

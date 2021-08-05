@@ -9,10 +9,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
+    private static final String NOT_EXIST_USER = "[ERROR] No such User";
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
@@ -22,8 +27,8 @@ public class PostService {
      */
     @Transactional
     public Long post(Long userId, String postContent, String postTitle, String postCode, int isQna) {
-        // 엔티티 조회
-        User user = userRepository.findOne(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
 
         Post post = Post.createPost(user, postContent, postTitle, postCode, isQna);
 
