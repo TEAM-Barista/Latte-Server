@@ -22,7 +22,7 @@ public class PostApiController {
     public Result postListV1() {
         List<Post> posts = postRepository.findAll();
         List<PostListDto> result = posts.stream()
-                .map(p -> new PostListDto(p, postRepository.countReplies(p.getId()), postRepository.countPostLikes(p.getId())))
+                .map(p -> new PostListDto(p, postRepository.countReplies(p.getId())))
                 .collect(Collectors.toList());
 
         return new Result(result.size(), result);

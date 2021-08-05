@@ -1,24 +1,25 @@
-package com.latte.server.post.domain;
+package com.latte.server.interview.domain;
+
 
 import com.latte.server.common.domain.BaseTimeEntity;
+import com.latte.server.post.domain.Post;
 import com.latte.server.user.domain.User;
 import lombok.Getter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * Created by Donggun on 2021-08-05
  */
 
 @Entity
-@Table(name = "BOOKMARK_TB")
+@Table(name = "INTERVIEW_BOOKMARK_TB")
 @Getter
-public class BookMark extends BaseTimeEntity {
+public class InterviewBookMark extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
-    @Column(name = "bookmark_id")
+    @Column(name = "interview_bookmark_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,6 +27,6 @@ public class BookMark extends BaseTimeEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @JoinColumn(name = "interview_id")
+    private Interview interview;
 }

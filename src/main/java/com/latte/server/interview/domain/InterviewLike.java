@@ -1,34 +1,31 @@
-package com.latte.server.post.domain;
+package com.latte.server.interview.domain;
 
 import com.latte.server.common.domain.BaseTimeEntity;
+import com.latte.server.interview.domain.Interview;
 import com.latte.server.user.domain.User;
 import lombok.Getter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * Created by Donggun on 2021-08-05
  */
 
 @Entity
-@Table(name = "REPLY_LIKE_TB")
+@Table(name = "INTERVIEW_LIKE_TB")
 @Getter
-public class ReplyLike extends BaseTimeEntity {
+public class InterviewLike extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
-    @Column(name = "reply_like_id")
+    @Column(name = "interview_like_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reply_id")
-    private Reply reply;
+    @JoinColumn(name = "interview_id")
+    private Interview interview;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid")
     private User user;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 }

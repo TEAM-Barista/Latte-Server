@@ -1,13 +1,18 @@
-package com.latte.server.post.domain;
+package com.latte.server.category.domain;
 
+import com.latte.server.common.domain.BaseTimeEntity;
 import lombok.Getter;
 
 import javax.persistence.*;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 @Entity
 @Table(name = "CATEGORY_TB")
 @Getter
-public class Category {
+public class Category extends BaseTimeEntity {
 
     @Id
     @GeneratedValue

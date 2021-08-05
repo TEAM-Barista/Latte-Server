@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 @Component
 @RequiredArgsConstructor
 public class InitDb {
@@ -31,16 +35,16 @@ public class InitDb {
             User user = createUser("동건", "donggun", "I'm donggun", 1011111111, "local");
             em.persist(user);
 
-            Post post1 = createPost(user, "배가 고프다. 많이 고프다.", "배고파요", null, 10, 0);
+            Post post1 = createPost(user, "배가 고프다. 많이 고프다.", "배고파요", null, 0);
             em.persist(post1);
 
-            Post post2 = createPost(user, "post content", "post title", "post code", 21, 0);
+            Post post2 = createPost(user, "post content", "post title", "post code", 0);
             em.persist(post2);
 
         }
 
-        private Post createPost(User user, String postContent, String postTitle, String postCode, int postHit, int isQna) {
-            Post post = Post.createPost(user, postContent, postHit, postTitle, postCode, isQna);
+        private Post createPost(User user, String postContent, String postTitle, String postCode, int isQna) {
+            Post post = Post.createPost(user, postContent, postTitle, postCode, isQna);
 
             return post;
         }

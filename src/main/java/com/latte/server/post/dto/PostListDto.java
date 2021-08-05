@@ -3,6 +3,10 @@ import com.latte.server.post.domain.Post;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 @Data
 public class PostListDto {
     private Long postId;
@@ -10,16 +14,13 @@ public class PostListDto {
     private String postTitle;
     private String postContent;
     private int replyCount;
-    private int postLikeCount;
-    private LocalDateTime createdAt;
 
-    public PostListDto(Post post, int replyCount, int postLikeCount) {
+    public PostListDto(Post post, int replyCount) {
         this.postId = post.getId();
         this.userName = post.getUser().getUserName();
         this.postTitle = post.getPostTitle();
         this.postContent = post.getPostContent();
-        this.createdAt = post.getCreatedAt();
         this.replyCount = replyCount;
-        this.postLikeCount = postLikeCount;
     }
+
 }

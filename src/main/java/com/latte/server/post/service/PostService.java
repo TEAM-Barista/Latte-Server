@@ -22,12 +22,10 @@ public class PostService {
      */
     @Transactional
     public Long post(Long userId, String postContent, String postTitle, String postCode, int isQna) {
-        int basePostHit = 0;
-
         // 엔티티 조회
         User user = userRepository.findOne(userId);
 
-        Post post = Post.createPost(user, postContent, basePostHit, postTitle, postCode, isQna);
+        Post post = Post.createPost(user, postContent, postTitle, postCode, isQna);
 
         postRepository.save(post);
 
@@ -35,15 +33,12 @@ public class PostService {
     }
 
     public void update(Long postId, String postContent, String postTitle, String postCode, int isQna) {
-        Post findPost = postRepository.findOne(postId);
-        findPost.setPostContent(postContent);
-        findPost.setPostTitle(postTitle);
-        findPost.setPostCode(postCode);
-        findPost.setIsQna(isQna);
+        Post findPost = postRepository.findById(postId).get();
+        findPost.changePost(postContent, postTitle, postCode, isQna);
     }
 
     public void delete(Long postId) {
-        Post findPost = postRepository.findOne(postId);
-        findPost.setIsDeleted(1);
+        Post findPost = postRepository.findById(postId).get();
+        findPost.deletePost();
     }
 }
