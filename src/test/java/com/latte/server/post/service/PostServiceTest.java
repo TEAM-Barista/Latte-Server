@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
@@ -38,9 +42,8 @@ public class PostServiceTest {
         Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
 
         //then
-        Post post = postRepository.findOne(postId);
+        Post post = postRepository.findById(postId).get();
         Assertions.assertThat(post.getPostContent()).isEqualTo("test content");
-        Assertions.assertThat(post.getPostHit()).isEqualTo(0);
         Assertions.assertThat(post.getPostTitle()).isEqualTo("test title");
         Assertions.assertThat(post.getPostCode()).isEqualTo("#stdio.h");
         Assertions.assertThat(post.getIsQna()).isEqualTo(0);
@@ -67,7 +70,7 @@ public class PostServiceTest {
         postService.update(postId, updateContent, updataeTitle, updateCode, updateQna);
 
         //then
-        Post post = postRepository.findOne(postId);
+        Post post = postRepository.findById(postId).get();
         Assertions.assertThat(post.getPostContent()).isEqualTo("update content");
         Assertions.assertThat(post.getPostTitle()).isEqualTo("update title");
         Assertions.assertThat(post.getPostCode()).isEqualTo("update code");
@@ -89,16 +92,12 @@ public class PostServiceTest {
         postService.delete(postId);
 
         //then
-        Post post = postRepository.findOne(postId);
+        Post post = postRepository.findById(postId).get();
         Assertions.assertThat(post.getIsDeleted()).isEqualTo(1);
     }
 
     private User createUser() {
-        User user = new User();
-        user.setUserName("user1");
-        user.setUserId("test");
-        user.setEmail("test@test.com");
-        user.setIntro("test intro");
+        User user = User.createTestUser("userA", "test", "test@test.com", "test intro");
         em.persist(user);
         return user;
     }
