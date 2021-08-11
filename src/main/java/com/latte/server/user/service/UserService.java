@@ -1,6 +1,7 @@
 package com.latte.server.user.service;
 
 import com.latte.server.common.exception.CustomException;
+import com.latte.server.common.exception.custom.NotFoundEmailException;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.dto.UserProfileImageUrlRequestDto;
 import com.latte.server.user.dto.UserRequestDto;
@@ -28,7 +29,7 @@ public class UserService {
 
     public void setProfileImage(UserProfileImageUrlRequestDto userProfileImageUrlRequestDto, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new CustomException(HttpStatus.UNAUTHORIZED, "Cannot find email: " + email));
+                .orElseThrow(NotFoundEmailException::new);
         user.setProfileImageUrl(userProfileImageUrlRequestDto.getProfileImageUrl());
 
         userRepository.save(user);

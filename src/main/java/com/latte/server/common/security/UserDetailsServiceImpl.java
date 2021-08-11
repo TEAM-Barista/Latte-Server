@@ -1,6 +1,7 @@
 package com.latte.server.common.security;
 
 import com.latte.server.common.exception.CustomException;
+import com.latte.server.common.exception.custom.NotFoundEmailException;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "Cannot find email: " + email));
+                .orElseThrow(NotFoundEmailException::new);
     }
 
 }

@@ -4,6 +4,8 @@ import com.latte.server.auth.dto.AuthRequestDto;
 import com.latte.server.auth.dto.AuthResponseDto;
 import com.latte.server.auth.dto.RefreshRequestDto;
 import com.latte.server.common.exception.CustomException;
+import com.latte.server.common.exception.custom.NotFoundEmailException;
+import com.latte.server.common.exception.custom.NotFoundPasswordException;
 import com.latte.server.common.security.JwtTokenProvider;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
@@ -31,7 +33,7 @@ public class AuthService {
     public AuthResponseDto signIn(AuthRequestDto authRequestDto) {
         User user = getUserByEmail(authRequestDto.getEmail());
         if (!passwordEncoder.matches(authRequestDto.getPassword(), user.getPassword())) {
-            throw new CustomException(HttpStatus.UNAUTHORIZED, "Cannot find Password");
+            throw new NotFoundPasswordException();
         }
 
         String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), user.getUserRole().name());
@@ -48,7 +50,7 @@ public class AuthService {
     @Transactional
     public AuthResponseDto refreshing(RefreshRequestDto refreshRequestDto) {
         if (!jwtTokenProvider.validateToken(refreshRequestDto.getRefreshToken())) {
-            throw new CustomException(HttpStatus.UNAUTHORIZED, "Refresh token expired");
+            throw new NotFoundPasswordException();
         }
 
         String email = jwtTokenProvider.getUserPk(refreshRequestDto.getAccessToken());
@@ -62,6 +64,6 @@ public class AuthService {
 
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(()-> new CustomException(HttpStatus.UNAUTHORIZED, "Cannot find email: " + email));
+                .orElseThrow(NotFoundEmailException::new);
     }
 }
