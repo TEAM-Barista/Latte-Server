@@ -29,6 +29,12 @@ public class UserRequestDto {
     @NotBlank(message = "password cannot be null")
     private String password;
 
+    public UserRequestDto(String nickName, String email, String password) {
+        this.nickName = nickName;
+        this.email = email;
+        this.password = password;
+    }
+
     public User toEntity() {
         return new User(
                 null,

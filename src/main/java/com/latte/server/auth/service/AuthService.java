@@ -41,7 +41,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void signOut(AuthRequestDto authRequestDto) {
+    public void signOut(String userEmail) {
+        User user = getUserByEmail(userEmail);
     }
 
     @Transactional

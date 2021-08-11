@@ -16,6 +16,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+
+/**
+ * User Domain
+ */
+
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter
 @Setter
@@ -41,6 +46,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    @Nullable
+    private String profileImageUrl;
 
     @Builder
     public User(

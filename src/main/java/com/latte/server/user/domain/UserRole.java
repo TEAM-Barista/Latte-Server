@@ -5,7 +5,7 @@ package com.latte.server.user.domain;
  */
 
 /**
- * 유저 권한
+ * User Permission
  */
 public enum UserRole {
     ADMIN, // 관리자

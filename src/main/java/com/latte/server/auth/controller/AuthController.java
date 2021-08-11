@@ -31,4 +31,9 @@ public class AuthController {
     public ResponseEntity<AuthResponseDto> refreshing(@RequestBody RefreshRequestDto refreshRequestDto) {
         return ResponseEntity.ok().body(authService.refreshing(refreshRequestDto));
     }
+
+    /**
+     * TODO: Sign Out
+     * DELETE
+     */
 }
