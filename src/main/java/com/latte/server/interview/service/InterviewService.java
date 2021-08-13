@@ -23,7 +23,7 @@ public class InterviewService {
     private static final String NOT_EXIST_USER = "[ERROR] No such User";
     private static final Long INTERVIEW_LIKE_DELETED = 0L;
     private static final Long INTERVIEW_BOOKMARK_DELETED = 0L;
-    
+
     private final UserRepository userRepository;
     private final InterviewRepository interviewRepository;
     private final InterviewLikeRepository interviewLikeRepository;

@@ -236,13 +236,12 @@ public class InterviewServiceTest {
         interviewService.createInterview(user.getId(), interviewContent2, interviewTitle2);
 
         //when
-        List<Interview> interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
-        Interview findInterview = interviewByCreatedDate.get(0);
+        Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
 
         //then
-        assertThat(findInterview.getInterviewContent()).isEqualTo("test content2");
-        assertThat(findInterview.getInterviewTitle()).isEqualTo("test title2");
-        assertThat(findInterview.getIsDeleted()).isEqualTo(0);
+        assertThat(interviewByCreatedDate.getInterviewContent()).isEqualTo("test content2");
+        assertThat(interviewByCreatedDate.getInterviewTitle()).isEqualTo("test title2");
+        assertThat(interviewByCreatedDate.getIsDeleted()).isEqualTo(0);
     }
 
     @Test

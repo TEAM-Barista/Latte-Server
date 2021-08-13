@@ -5,6 +5,10 @@ import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 public interface InterviewBookmarkRepository extends JpaRepository<InterviewBookmark, Long> {
     int countByInterview(Interview interview);
 

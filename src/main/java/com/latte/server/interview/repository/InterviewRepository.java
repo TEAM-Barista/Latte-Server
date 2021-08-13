@@ -10,10 +10,6 @@ import java.util.List;
  * Created by Donggun on 2021-08-05
  */
 
-public interface InterviewRepository extends JpaRepository<Interview, Long> {
-
-    @Query("select i from Interview i order by i.createdDate DESC")
-    List<Interview> findInterviewByCreatedDate();
-
+public interface InterviewRepository extends JpaRepository<Interview, Long>, InterviewRepositoryCustom {
 }
 
