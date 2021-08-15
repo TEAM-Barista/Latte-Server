@@ -44,57 +44,6 @@ public class InterviewServiceTest {
     EntityManager em;
 
     @Test
-    public void 인터뷰_좋아요_갯수_카운트() {
-        //given
-        User user = createUser();
-        Interview interview = Interview.createInterview(user, "test content", "test title");
-        em.persist(interview);
-
-        em.flush();
-        em.clear();
-
-        //when
-        int likeCount = interviewLikeRepository.countByInterview(interview);
-
-        //then
-        assertThat(likeCount).isEqualTo(0);
-    }
-
-    @Test
-    public void 인터뷰_북마크_갯수_카운트() {
-        //given
-        User user = createUser();
-        Interview interview = Interview.createInterview(user, "test content", "test title");
-        em.persist(interview);
-
-        em.flush();
-        em.clear();
-
-        //when
-        int bookMarkCount = interviewBookMarkRepository.countByInterview(interview);
-
-        //then
-        assertThat(bookMarkCount).isEqualTo(0);
-    }
-
-    @Test
-    public void 인터뷰_좋아요_여부_판별() {
-        //given
-        User user = createUser();
-        Interview interview = Interview.createInterview(user, "test content", "test title");
-        em.persist(interview);
-
-        em.flush();
-        em.clear();
-
-        //when
-        int likeCount = interviewLikeRepository.countByInterviewAndAndUser(interview, user);
-
-        //then
-        assertThat(likeCount).isEqualTo(0);
-    }
-
-    @Test
     public void 인터뷰_좋아요() {
         //given
         User user = createUser();
@@ -133,41 +82,6 @@ public class InterviewServiceTest {
     }
 
     @Test
-    public void 인터뷰_좋아요_여부_판별_좋아요_상태() {
-        //given
-        User user = createUser();
-        Interview interview = Interview.createInterview(user, "test content", "test title");
-        em.persist(interview);
-
-        interviewService.createInterviewLike(user.getId(), interview);
-
-        em.flush();
-        em.clear();
-
-        //when
-        int likeCount = interviewLikeRepository.countByInterviewAndAndUser(interview, user);
-
-        //then
-        assertThat(likeCount).isEqualTo(1);
-    }
-
-    @Test
-    public void 인터뷰_북마크_여부_판별() {
-        //given
-        User user = createUser();
-        Interview interview = Interview.createInterview(user, "test content", "test title");
-        em.persist(interview);
-
-        em.flush();
-        em.clear();
-
-        //when
-        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndAndUser(interview, user);
-
-        //then
-        assertThat(bookmarkCount).isEqualTo(0);
-    }
-    @Test
     public void 인터뷰_북마크() {
         //given
         User user = createUser();
@@ -205,44 +119,7 @@ public class InterviewServiceTest {
         assertThat(interviewLike).isEqualTo(0L);
     }
 
-    @Test
-    public void 인터뷰_북마크_여부_판별_북마크_상태() {
-        //given
-        User user = createUser();
-        Interview interview = Interview.createInterview(user, "test content", "test title");
-        em.persist(interview);
 
-        interviewService.createInterviewBookmark(user.getId(), interview);
-
-        em.flush();
-        em.clear();
-
-        //when
-        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndAndUser(interview, user);
-
-        //then
-        assertThat(bookmarkCount).isEqualTo(1);
-    }
-
-    @Test
-    public void 인터뷰_게시글_출력() {
-        //given
-        User user = createUser();
-        String interviewContent = "test content";
-        String interviewTitle = "test title";
-        interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
-        String interviewContent2 = "test content2";
-        String interviewTitle2 = "test title2";
-        interviewService.createInterview(user.getId(), interviewContent2, interviewTitle2);
-
-        //when
-        Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
-
-        //then
-        assertThat(interviewByCreatedDate.getInterviewContent()).isEqualTo("test content2");
-        assertThat(interviewByCreatedDate.getInterviewTitle()).isEqualTo("test title2");
-        assertThat(interviewByCreatedDate.getIsDeleted()).isEqualTo(0);
-    }
 
     @Test
     public void 인터뷰_게시글_생성() {
