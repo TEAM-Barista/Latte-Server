@@ -9,6 +9,10 @@ import java.util.List;
 
 import static com.latte.server.interview.domain.QInterview.*;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 public class InterviewRepositoryImpl implements InterviewRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
