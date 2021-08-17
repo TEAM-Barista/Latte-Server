@@ -1,11 +1,14 @@
 package com.latte.server.Interview.service;
 
+import com.latte.server.category.domain.Category;
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
+import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.repository.InterviewBookmarkRepository;
 import com.latte.server.interview.repository.InterviewLikeRepository;
 import com.latte.server.interview.repository.InterviewRepository;
+import com.latte.server.interview.repository.InterviewTagRepository;
 import com.latte.server.interview.service.InterviewService;
 import com.latte.server.user.domain.User;
 import org.junit.Test;
@@ -40,6 +43,8 @@ public class InterviewServiceTest {
     InterviewLikeRepository interviewLikeRepository;
     @Autowired
     InterviewBookmarkRepository interviewBookMarkRepository;
+    @Autowired
+    InterviewTagRepository interviewTagRepository;
     @PersistenceContext
     EntityManager em;
 
@@ -137,8 +142,47 @@ public class InterviewServiceTest {
         assertThat(interview.getInterviewTitle()).isEqualTo("test title");
     }
 
+
+    @Test
+    public void 인터뷰_태그_생성() {
+        //given
+        User user = createUser();
+        Interview interview = Interview.createInterview(user, "test content", "test title");
+        Category category = Category.createCategory("test category", "test");
+
+        //when
+        Long interviewTag = interviewService.createInterviewTag(interview, category);
+
+        //then
+        InterviewTag findInterviewTag = interviewTagRepository.findById(interviewTag).get();
+        assertThat(findInterviewTag.getInterview()).isEqualTo(interview);
+        assertThat(findInterviewTag.getId()).isEqualTo(interviewTag);
+        assertThat(findInterviewTag.getCategory().getCategory()).isEqualTo("test category");
+        assertThat(findInterviewTag.getCategory().getKind()).isEqualTo("test");
+    }
+
+
     @Test
     public void 인터뷰_해시태그_가져오기() {
+        //given
+        User user = createUser();
+        Interview interview = Interview.createInterview(user, "test content", "test title");
+
+        Category category1 = Category.createCategory("test category1", "test1");
+        interviewService.createInterviewTag(interview, category1);
+        Category category2 = Category.createCategory("test category2", "test2");
+        interviewService.createInterviewTag(interview, category2);
+
+        //when
+        List<InterviewTag> findTags = interviewTagRepository.findByInterview(interview);
+
+        //then
+        assertThat(findTags.size()).isEqualTo(2);
+        assertThat(findTags.get(0).getCategory()).isEqualTo(category1);
+        assertThat(findTags.get(0).getInterview()).isEqualTo(interview);
+
+        assertThat(findTags.get(1).getCategory()).isEqualTo(category2);
+        assertThat(findTags.get(1).getInterview()).isEqualTo(interview);
     }
 
     private User createUser() {

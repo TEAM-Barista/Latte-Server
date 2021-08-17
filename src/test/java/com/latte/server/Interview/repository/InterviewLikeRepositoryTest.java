@@ -65,7 +65,7 @@ public class InterviewLikeRepositoryTest {
         em.clear();
 
         //when
-        int likeCount = interviewLikeRepository.countByInterviewAndAndUser(interview, user);
+        int likeCount = interviewLikeRepository.countByInterviewAndUser(interview, user);
 
         //then
         assertThat(likeCount).isEqualTo(0);
@@ -84,7 +84,7 @@ public class InterviewLikeRepositoryTest {
         em.clear();
 
         //when
-        int likeCount = interviewLikeRepository.countByInterviewAndAndUser(interview, user);
+        int likeCount = interviewLikeRepository.countByInterviewAndUser(interview, user);
 
         //then
         assertThat(likeCount).isEqualTo(1);

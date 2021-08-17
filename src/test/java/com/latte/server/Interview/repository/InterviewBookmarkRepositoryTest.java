@@ -65,7 +65,7 @@ public class InterviewBookmarkRepositoryTest {
         em.clear();
 
         //when
-        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndAndUser(interview, user);
+        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndUser(interview, user);
 
         //then
         assertThat(bookmarkCount).isEqualTo(0);
@@ -85,7 +85,7 @@ public class InterviewBookmarkRepositoryTest {
         em.clear();
 
         //when
-        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndAndUser(interview, user);
+        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndUser(interview, user);
 
         //then
         assertThat(bookmarkCount).isEqualTo(1);

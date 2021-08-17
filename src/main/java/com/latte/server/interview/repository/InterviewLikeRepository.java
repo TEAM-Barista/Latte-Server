@@ -13,7 +13,7 @@ public interface InterviewLikeRepository extends JpaRepository<InterviewLike, Lo
 
     int countByInterview(Interview interview);
 
-    int countByInterviewAndAndUser(Interview interview, User user);
+    int countByInterviewAndUser(Interview interview, User user);
 
     InterviewLike findByInterview(Interview interview);
 }
