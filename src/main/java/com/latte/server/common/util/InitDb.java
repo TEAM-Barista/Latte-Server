@@ -1,5 +1,10 @@
 package com.latte.server.common.util;
 
+import com.latte.server.category.domain.Category;
+import com.latte.server.interview.domain.Interview;
+import com.latte.server.interview.domain.InterviewBookmark;
+import com.latte.server.interview.domain.InterviewLike;
+import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.post.domain.Post;
 import com.latte.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -41,17 +46,31 @@ public class InitDb {
             Post post2 = createPost(user, "post content", "post title", "post code", 0);
             em.persist(post2);
 
+            Category category = Category.createCategory("category test", "kind test");
+            em.persist(category);
+
+            Interview interview = Interview.createInterview(user, "test interview", "test interview title");
+            em.persist(interview);
+
+            InterviewBookmark interviewBookmark = InterviewBookmark.createInterviewBookmark(interview, user);
+            em.persist(interviewBookmark);
+
+            InterviewLike interviewLike = InterviewLike.createInterviewLike(interview, user);
+            em.persist(interviewLike);
+
+            InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
+            em.persist(interviewTag);
         }
 
         private Post createPost(User user, String postContent, String postTitle, String postCode, int isQna) {
             Post post = Post.createPost(user, postContent, postTitle, postCode, isQna);
-
             return post;
         }
 
         private User createUser(String userName, String userId, String intro, String email) {
             return User.createTestUser(userName, userId, email, intro);
         }
+
 
     }
 
