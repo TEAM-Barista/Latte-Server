@@ -1,11 +1,14 @@
 package com.latte.server.interview.service;
 
+import com.latte.server.category.domain.Category;
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
+import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.repository.InterviewBookmarkRepository;
 import com.latte.server.interview.repository.InterviewLikeRepository;
 import com.latte.server.interview.repository.InterviewRepository;
+import com.latte.server.interview.repository.InterviewTagRepository;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class InterviewService {
     private final InterviewRepository interviewRepository;
     private final InterviewLikeRepository interviewLikeRepository;
     private final InterviewBookmarkRepository interviewBookmarkRepository;
+    private final InterviewTagRepository interviewTagRepository;
 
 
     @Transactional
@@ -70,5 +74,12 @@ public class InterviewService {
 
         interviewBookmarkRepository.delete(interviewBookmarkRepository.findByInterview(interview));
         return INTERVIEW_BOOKMARK_DELETED;
+    }
+
+    @Transactional
+    public Long createInterviewTag(Interview interview, Category category) {
+        InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
+        interviewTagRepository.save(interviewTag);
+        return interviewTag.getId();
     }
 }
