@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import static org.assertj.core.api.Assertions.*;
+
 /**
  * Created by Donggun on 2021-08-05
  */
@@ -43,12 +45,92 @@ public class PostServiceTest {
 
         //then
         Post post = postRepository.findById(postId).get();
-        Assertions.assertThat(post.getPostContent()).isEqualTo("test content");
-        Assertions.assertThat(post.getPostTitle()).isEqualTo("test title");
-        Assertions.assertThat(post.getPostCode()).isEqualTo("#stdio.h");
-        Assertions.assertThat(post.getIsQna()).isEqualTo(0);
-        Assertions.assertThat(post.getIsDeleted()).isEqualTo(0);
+        assertThat(post.getPostContent()).isEqualTo("test content");
+        assertThat(post.getPostTitle()).isEqualTo("test title");
+        assertThat(post.getPostCode()).isEqualTo("#stdio.h");
+        assertThat(post.getIsQna()).isEqualTo(0);
+        assertThat(post.getIsDeleted()).isEqualTo(0);
 
+    }
+
+    @Test
+    public void 포스트_추가_타이틀_공백() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "";
+        String postCode = "#stdio.h";
+        int isQna = 0;
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+    }
+
+    @Test
+    public void 포스트_추가_컨텐츠_공백() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+
+        User user = createUser();
+        String postContent = "";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        int isQna = 0;
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+    }
+
+    @Test
+    public void 포스트_추가_둘다_공백() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+
+        User user = createUser();
+        String postContent = "";
+        String postTitle = "";
+        String postCode = "#stdio.h";
+        int isQna = 0;
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+    }
+
+    @Test
+    public void 포스트_추가_띄어쓰기() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+
+        User user = createUser();
+        String postContent = " ";
+        String postTitle = " ";
+        String postCode = "#stdio.h";
+        int isQna = 0;
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
     }
 
     @Test
@@ -71,10 +153,10 @@ public class PostServiceTest {
 
         //then
         Post post = postRepository.findById(postId).get();
-        Assertions.assertThat(post.getPostContent()).isEqualTo("update content");
-        Assertions.assertThat(post.getPostTitle()).isEqualTo("update title");
-        Assertions.assertThat(post.getPostCode()).isEqualTo("update code");
-        Assertions.assertThat(post.getIsQna()).isEqualTo(1);
+        assertThat(post.getPostContent()).isEqualTo("update content");
+        assertThat(post.getPostTitle()).isEqualTo("update title");
+        assertThat(post.getPostCode()).isEqualTo("update code");
+        assertThat(post.getIsQna()).isEqualTo(1);
 
     }
 
@@ -93,7 +175,7 @@ public class PostServiceTest {
 
         //then
         Post post = postRepository.findById(postId).get();
-        Assertions.assertThat(post.getIsDeleted()).isEqualTo(1);
+        assertThat(post.getIsDeleted()).isEqualTo(1);
     }
 
     private User createUser() {
