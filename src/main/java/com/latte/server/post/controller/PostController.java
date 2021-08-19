@@ -1,4 +1,4 @@
-package com.latte.server.post.api;
+package com.latte.server.post.controller;
 
 import com.latte.server.post.domain.Post;
 import com.latte.server.post.dto.PostListDto;
