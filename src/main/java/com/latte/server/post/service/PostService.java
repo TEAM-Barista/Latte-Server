@@ -31,13 +31,14 @@ public class PostService {
      * Post
      */
     @Transactional
-    public Long post(Long userId, String postContent, String postTitle, String postCode, int isQna) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+    public Long post(Long userId, String postContent, String postTitle, String postCode) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
         if (!(hasText(postTitle) && hasText(postContent))) {
             throw new IllegalArgumentException(NOT_EXIST_TEXT);
         }
 
-        Post post = Post.createPost(user, postContent, postTitle, postCode, isQna);
+        Post post = Post.createPost(user, postContent, postTitle, postCode);
 
         postRepository.save(post);
 

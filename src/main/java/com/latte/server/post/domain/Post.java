@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Donggun on 2021-08-05
@@ -38,13 +40,17 @@ public class Post extends BaseTimeEntity {
     @Column(name = "post_code")
     private String postCode;
 
+    @Column(name = "post_tags")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Tag> postTags = new ArrayList<>();
+
     @Column(name = "is_deleted")
     private int isDeleted;
 
     @Column(name = "is_qna")
     private int isQna;
 
-    private Post(User user, String postContent, String postTitle, String postCode, int isDeleted, int isQna) {
+    public Post(User user, String postContent, String postTitle, String postCode, int isDeleted, int isQna) {
         this.user = user;
         this.postContent = postContent;
         this.postTitle = postTitle;
@@ -53,9 +59,16 @@ public class Post extends BaseTimeEntity {
         this.isQna = isQna;
     }
 
+    // == 연관관계 편의 메서드 == //
+    public void addPostTag(Tag tag) {
+        postTags.add(tag);
+        tag.changePost(this);
+    }
+
     // == 생성 메서드 == //
-    public static Post createPost(User user, String postContent, String postTitle, String postCode, int isQna) {
-        return new Post(user, postContent, postTitle, postCode, 0, isQna);
+    public static Post createPost(User user, String postContent, String postTitle, String postCode) {
+        Post post = new Post(user, postContent, postTitle, postCode, 0, 0);
+        return post;
     }
 
     public void changePost(String postContent, String postTitle, String postCode, int isQna) {

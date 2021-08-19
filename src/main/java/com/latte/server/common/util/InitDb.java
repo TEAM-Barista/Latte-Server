@@ -40,10 +40,10 @@ public class InitDb {
             User user = createUser("동건", "donggun", "I'm donggun", "donggun@google.com");
             em.persist(user);
 
-            Post post1 = createPost(user, "배가 고프다. 많이 고프다.", "배고파요", null, 0);
+            Post post1 = createPost(user, "배가 고프다. 많이 고프다.", "배고파요", null);
             em.persist(post1);
 
-            Post post2 = createPost(user, "post content", "post title", "post code", 0);
+            Post post2 = createPost(user, "post content", "post title", "post code");
             em.persist(post2);
 
             Category category = Category.createCategory("category test", "kind test");
@@ -62,8 +62,8 @@ public class InitDb {
             em.persist(interviewTag);
         }
 
-        private Post createPost(User user, String postContent, String postTitle, String postCode, int isQna) {
-            Post post = Post.createPost(user, postContent, postTitle, postCode, isQna);
+        private Post createPost(User user, String postContent, String postTitle, String postCode) {
+            Post post = Post.createPost(user, postContent, postTitle, postCode);
             return post;
         }
 
