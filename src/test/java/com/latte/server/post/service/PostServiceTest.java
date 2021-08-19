@@ -38,10 +38,9 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        int isQna = 0;
 
         //when
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
 
         //then
         Post post = postRepository.findById(postId).get();
@@ -62,12 +61,11 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "";
         String postCode = "#stdio.h";
-        int isQna = 0;
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
                     // when
-                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                    postService.post(user.getId(), postContent, postTitle, postCode);
                 })
                 // then
                 .withMessage(NOT_EXIST_TEXT);
@@ -82,12 +80,11 @@ public class PostServiceTest {
         String postContent = "";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        int isQna = 0;
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
                     // when
-                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                    postService.post(user.getId(), postContent, postTitle, postCode);
                 })
                 // then
                 .withMessage(NOT_EXIST_TEXT);
@@ -102,12 +99,11 @@ public class PostServiceTest {
         String postContent = "";
         String postTitle = "";
         String postCode = "#stdio.h";
-        int isQna = 0;
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
                     // when
-                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                    postService.post(user.getId(), postContent, postTitle, postCode);
                 })
                 // then
                 .withMessage(NOT_EXIST_TEXT);
@@ -122,12 +118,11 @@ public class PostServiceTest {
         String postContent = " ";
         String postTitle = " ";
         String postCode = "#stdio.h";
-        int isQna = 0;
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
                     // when
-                    postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+                    postService.post(user.getId(), postContent, postTitle, postCode);
                 })
                 // then
                 .withMessage(NOT_EXIST_TEXT);
@@ -140,8 +135,7 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        int isQna = 0;
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
 
         String updateContent = "update content";
         String updataeTitle = "update title";
@@ -167,8 +161,7 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        int isQna = 0;
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
 
         //when
         postService.delete(postId);

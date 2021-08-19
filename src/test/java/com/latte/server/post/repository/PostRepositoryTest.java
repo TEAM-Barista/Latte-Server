@@ -32,8 +32,7 @@ public class PostRepositoryTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        int isQna = 0;
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode, isQna);
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
 
         //when
         int count = postRepository.countReplies(postId);
