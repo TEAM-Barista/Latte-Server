@@ -140,19 +140,90 @@ public class PostServiceTest {
         String updateContent = "update content";
         String updataeTitle = "update title";
         String updateCode = "update code";
-        int updateQna = 1;
 
         //when
-        postService.update(postId, updateContent, updataeTitle, updateCode, updateQna);
+        postService.update(postId, updateContent, updataeTitle, updateCode);
 
         //then
         Post post = postRepository.findById(postId).get();
         assertThat(post.getPostContent()).isEqualTo("update content");
         assertThat(post.getPostTitle()).isEqualTo("update title");
         assertThat(post.getPostCode()).isEqualTo("update code");
-        assertThat(post.getIsQna()).isEqualTo(1);
+        assertThat(post.getIsQna()).isEqualTo(0);
 
     }
+
+    @Test
+    public void 포스트_수정_제목_공백() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+
+        String updateContent = "update content";
+        String updataeTitle = "";
+        String updateCode = "update code";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.update(postId, updateContent, updataeTitle, updateCode);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+
+    }
+
+    @Test
+    public void 포스트_수정_내용_공백() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+
+        String updateContent = "";
+        String updataeTitle = "update title";
+        String updateCode = "update code";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.update(postId, updateContent, updataeTitle, updateCode);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+
+    }
+
+    @Test
+    public void 포스트_수정_띄어쓰기() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+
+        String updateContent = " ";
+        String updataeTitle = " ";
+        String updateCode = "update code";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.update(postId, updateContent, updataeTitle, updateCode);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+    }
+
 
     @Test
     public void 포스트_삭제() {
