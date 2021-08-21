@@ -22,6 +22,7 @@ import static org.springframework.util.StringUtils.*;
 @RequiredArgsConstructor
 public class PostService {
     private static final String NOT_EXIST_USER = "[ERROR] No such User";
+    private static final String NOT_EXIST_POST = "[ERROR] No such Post";
     private static final String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
 
     private final UserRepository userRepository;
@@ -34,9 +35,7 @@ public class PostService {
     public Long post(Long userId, String postContent, String postTitle, String postCode) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-        if (!(hasText(postTitle) && hasText(postContent))) {
-            throw new IllegalArgumentException(NOT_EXIST_TEXT);
-        }
+        valifyText(postContent, postTitle);
 
         Post post = Post.createPost(user, postContent, postTitle, postCode);
 
@@ -45,13 +44,25 @@ public class PostService {
         return post.getId();
     }
 
-    public void update(Long postId, String postContent, String postTitle, String postCode, int isQna) {
-        Post findPost = postRepository.findById(postId).get();
-        findPost.changePost(postContent, postTitle, postCode, isQna);
+    public void update(Long postId, String postContent, String postTitle, String postCode) {
+        Post findPost = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+        valifyText(postContent, postTitle);
+
+        findPost.changePost(postContent, postTitle, postCode);
+    }
+
+    private void valifyText(String postContent, String postTitle) {
+        if (!(hasText(postTitle) && hasText(postContent))) {
+            throw new IllegalArgumentException(NOT_EXIST_TEXT);
+        }
     }
 
     public void delete(Long postId) {
-        Post findPost = postRepository.findById(postId).get();
+        Post findPost = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
         findPost.deletePost();
     }
+
 }

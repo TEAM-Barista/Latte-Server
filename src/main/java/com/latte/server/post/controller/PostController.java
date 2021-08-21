@@ -11,10 +11,7 @@ import com.latte.server.post.service.TagService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -45,7 +42,7 @@ public class PostController {
     }
 
     @PostMapping("/api/v1/post")
-    public Long postV1(@RequestBody @Valid CreatePostRequest request) {
+    public CreatePostResponse postV1(@RequestBody @Valid CreatePostRequest request) {
 
         Long postId = postService.post(request.userId, request.postContent, request.postTitle, request.postCode);
         Post post = postRepository.findById(postId)
@@ -58,7 +55,43 @@ public class PostController {
             post.addPostTag(tag);
         }
 
-        return postId;
+        return new CreatePostResponse(postId);
+    }
+
+    @PostMapping("/api/v1/deletePost")
+    public DeletePostResponse deletePostV1(@RequestBody @Valid DeletePostRequest request) {
+        postService.delete(request.getPostId());
+        return new DeletePostResponse(request.getPostId());
+    }
+
+    @PutMapping("/api/v1/updatePost")
+    public UpdatePostResponse updatePostV1(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
+        postService.update(postId, request.postContent, request.postTitle, request.postCode);
+        return new UpdatePostResponse(postId);
+    }
+
+    @Data
+    static class UpdatePostRequest {
+        private String postTitle;
+        private String postContent;
+        private String postCode;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class UpdatePostResponse {
+        private Long postId;
+    }
+
+    @Data
+    static class DeletePostRequest {
+        private Long postId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class DeletePostResponse {
+        private Long postId;
     }
 
     @Data
@@ -68,6 +101,12 @@ public class PostController {
         private String postContent;
         private String postCode;
         private List<Long> postTags;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class CreatePostResponse {
+        private Long postId;
     }
 
     // data로 반환

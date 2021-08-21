@@ -71,11 +71,10 @@ public class Post extends BaseTimeEntity {
         return post;
     }
 
-    public void changePost(String postContent, String postTitle, String postCode, int isQna) {
+    public void changePost(String postContent, String postTitle, String postCode) {
         this.postContent = postContent;
         this.postTitle = postTitle;
         this.postCode = postCode;
-        this.isQna = isQna;
     }
 
     public void deletePost() {
