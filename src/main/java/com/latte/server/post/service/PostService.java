@@ -1,11 +1,14 @@
 package com.latte.server.post.service;
 
 import com.latte.server.post.domain.Post;
+import com.latte.server.post.dto.PostListDto;
 import com.latte.server.post.repository.PostRepository;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;

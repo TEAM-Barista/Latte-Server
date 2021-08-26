@@ -2,7 +2,9 @@ package com.latte.server.post.domain;
 
 import com.latte.server.common.domain.BaseTimeEntity;
 import com.latte.server.user.domain.User;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,7 +16,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "BOOKMARK_TB")
 @Getter
-public class BookMark extends BaseTimeEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Bookmark extends BaseTimeEntity {
 
     @Id
     @GeneratedValue
@@ -28,4 +31,14 @@ public class BookMark extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    private Bookmark(User user, Post post) {
+        this.user = user;
+        this.post = post;
+    }
+
+    // == 생성 메서드 == //
+    public static Bookmark createBookmark(User user, Post post) {
+        return new Bookmark(user, post);
+    }
 }

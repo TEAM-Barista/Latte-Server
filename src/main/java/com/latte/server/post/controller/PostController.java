@@ -31,15 +31,15 @@ public class PostController {
     private final TagService tagService;
 
 
-    @GetMapping("/api/v1/postList")
-    public Result postListV1() {
-        List<Post> posts = postRepository.findAll();
-        List<PostListDto> result = posts.stream()
-                .map(p -> new PostListDto(p, postRepository.countReplies(p.getId())))
-                .collect(Collectors.toList());
-
-        return new Result(result.size(), result);
-    }
+//    @GetMapping("/api/v1/postList")
+//    public Result postListV1() {
+//        List<Post> posts = postRepository.findAll();
+//        List<PostListDto> result = posts.stream()
+//                .map(p -> new PostListDto(p, postRepository.countReplies(p.getId())))
+//                .collect(Collectors.toList());
+//
+//        return new Result(result.size(), result);
+//    }
 
     @PostMapping("/api/v1/post")
     public CreatePostResponse postV1(@RequestBody @Valid CreatePostRequest request) {

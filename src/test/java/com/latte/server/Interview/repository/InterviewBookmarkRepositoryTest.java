@@ -2,8 +2,6 @@ package com.latte.server.Interview.repository;
 
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.repository.InterviewBookmarkRepository;
-import com.latte.server.interview.repository.InterviewLikeRepository;
-import com.latte.server.interview.repository.InterviewRepository;
 import com.latte.server.interview.service.InterviewService;
 import com.latte.server.user.domain.User;
 import org.junit.Test;
@@ -17,7 +15,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Donggun on 2021-08-05
@@ -32,7 +29,7 @@ public class InterviewBookmarkRepositoryTest {
     InterviewService interviewService;
 
     @Autowired
-    InterviewBookmarkRepository interviewBookMarkRepository;
+    InterviewBookmarkRepository interviewBookmarkRepository;
     @PersistenceContext
     EntityManager em;
 
@@ -48,10 +45,10 @@ public class InterviewBookmarkRepositoryTest {
         em.clear();
 
         //when
-        int bookMarkCount = interviewBookMarkRepository.countByInterview(interview);
+        int bookmarkCount = interviewBookmarkRepository.countByInterview(interview);
 
         //then
-        assertThat(bookMarkCount).isEqualTo(0);
+        assertThat(bookmarkCount).isEqualTo(0);
     }
 
     @Test
@@ -65,7 +62,7 @@ public class InterviewBookmarkRepositoryTest {
         em.clear();
 
         //when
-        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndUser(interview, user);
+        int bookmarkCount = interviewBookmarkRepository.countByInterviewAndUser(interview, user);
 
         //then
         assertThat(bookmarkCount).isEqualTo(0);
@@ -85,7 +82,7 @@ public class InterviewBookmarkRepositoryTest {
         em.clear();
 
         //when
-        int bookmarkCount = interviewBookMarkRepository.countByInterviewAndUser(interview, user);
+        int bookmarkCount = interviewBookmarkRepository.countByInterviewAndUser(interview, user);
 
         //then
         assertThat(bookmarkCount).isEqualTo(1);
