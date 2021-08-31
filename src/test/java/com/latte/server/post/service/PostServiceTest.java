@@ -416,6 +416,43 @@ public class PostServiceTest {
         assertThat(result.getContent()).extracting("postContent").containsExactly("after content");
     }
 
+    @Test
+    public void 포스트_북마크() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+
+        //when
+        postService.createPostBookmark(userId, post);
+
+        //then
+        assertThat(bookmarkRepository.findByPost(post)).isNotNull();
+    }
+
+    @Test
+    public void 포스트_북마크_해제() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        postService.createPostBookmark(userId, post);
+
+        //when
+        postService.createPostBookmark(userId, post);
+
+        //then
+        assertThat(bookmarkRepository.findByPost(post)).isNull();
+    }
+
     private User createUser() {
         User user = User.createTestUser("userA", "test", "test@test.com", "test intro");
         em.persist(user);
