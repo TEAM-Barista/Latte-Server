@@ -1,7 +1,11 @@
 package com.latte.server.post.service;
 
+import com.latte.server.interview.domain.Interview;
+import com.latte.server.interview.domain.InterviewBookmark;
+import com.latte.server.post.domain.Bookmark;
 import com.latte.server.post.domain.Post;
 import com.latte.server.post.dto.PostListDto;
+import com.latte.server.post.repository.BookmarkRepository;
 import com.latte.server.post.repository.PostRepository;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
@@ -27,9 +31,11 @@ public class PostService {
     private static final String NOT_EXIST_USER = "[ERROR] No such User";
     private static final String NOT_EXIST_POST = "[ERROR] No such Post";
     private static final String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+    private static final Long POST_BOOKMARK_DELETED = 0L;
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final BookmarkRepository bookmarkRepository;
 
     /**
      * Post
@@ -66,6 +72,21 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
 
         findPost.deletePost();
+    }
+
+    @Transactional
+    public Long createPostBookmark(Long userId, Post post) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        if (bookmarkRepository.findByPost(post) == null) {
+            Bookmark bookmark = Bookmark.createBookmark(user, post);
+            bookmarkRepository.save(bookmark);
+            return bookmark.getId();
+        }
+
+        bookmarkRepository.delete(bookmarkRepository.findByPost(post));
+        return POST_BOOKMARK_DELETED;
     }
 
 }

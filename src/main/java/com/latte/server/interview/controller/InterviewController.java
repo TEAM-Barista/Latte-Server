@@ -8,14 +8,19 @@ import com.latte.server.interview.repository.InterviewLikeRepository;
 import com.latte.server.interview.repository.InterviewRepository;
 import com.latte.server.interview.repository.InterviewTagRepository;
 import com.latte.server.interview.service.InterviewService;
+import com.latte.server.post.controller.PostController;
+import com.latte.server.post.domain.Post;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +34,7 @@ import java.util.Optional;
 public class InterviewController {
     private static final int CAROUSEL_SIZE = 1;
     private static final String NOT_EXIST_USER = "[ERROR] No such User";
+    private static final String NOT_EXIST_INTERVIEW = "[ERROR] No such Interview";
 
     private final UserRepository userRepository;
     private final InterviewRepository interviewRepository;
@@ -39,7 +45,7 @@ public class InterviewController {
     private final InterviewService interviewService;
 
 
-    @GetMapping("/v1/interview/carousel")
+    @GetMapping("/api/v1/interview/carousel")
     public CarouselResult carouselV1(Long uid) {
         User user = userRepository.findById(uid).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
 
@@ -64,6 +70,52 @@ public class InterviewController {
 
         return new CarouselResult(CAROUSEL_SIZE, carousel, categories);
     }
+
+
+    @PostMapping("/api/v1/interviewBookmark")
+    public BookmarkInterviewResponse interviewBookmarkV1(@RequestBody @Valid BookmarkInterviewRequest request) {
+        Interview findInterview = interviewRepository.findById(request.getInterviewId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+
+        Long interviewId = interviewService.createInterviewBookmark(request.getUserId(), findInterview);
+
+        return new BookmarkInterviewResponse(interviewId);
+    }
+
+    @PostMapping("/api/v1/interviewLike")
+    public LikeInterviewResponse interviewLikeV1(@RequestBody @Valid LikeInterviewRequest request) {
+        Interview findInterview = interviewRepository.findById(request.getInterviewId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+
+        Long interviewId = interviewService.createInterviewLike(request.getUserId(), findInterview);
+
+        return new LikeInterviewResponse(interviewId);
+    }
+
+    @Data
+    static class BookmarkInterviewRequest {
+        private Long interviewId;
+        private Long userId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class BookmarkInterviewResponse {
+        private Long interviewId;
+    }
+
+    @Data
+    static class LikeInterviewRequest {
+        private Long interviewId;
+        private Long userId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class LikeInterviewResponse {
+        private Long interviewId;
+    }
+
 
     @Data
     @AllArgsConstructor

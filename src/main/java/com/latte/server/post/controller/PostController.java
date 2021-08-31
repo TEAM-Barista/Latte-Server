@@ -4,6 +4,7 @@ import com.latte.server.post.domain.Post;
 import com.latte.server.post.domain.Tag;
 import com.latte.server.post.dto.PostDto;
 import com.latte.server.post.dto.PostListDto;
+import com.latte.server.post.dto.PostSearchCondition;
 import com.latte.server.post.repository.PostRepository;
 import com.latte.server.post.repository.TagRepository;
 import com.latte.server.post.service.PostService;
@@ -11,6 +12,8 @@ import com.latte.server.post.service.TagService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,15 +34,19 @@ public class PostController {
     private final TagService tagService;
 
 
-//    @GetMapping("/api/v1/postList")
-//    public Result postListV1() {
-//        List<Post> posts = postRepository.findAll();
-//        List<PostListDto> result = posts.stream()
-//                .map(p -> new PostListDto(p, postRepository.countReplies(p.getId())))
-//                .collect(Collectors.toList());
-//
-//        return new Result(result.size(), result);
-//    }
+    @GetMapping("/api/v1/postList")
+    public Page<PostListDto> postListV1(PostSearchCondition condition, Pageable pageable) {
+        return postRepository.searchPostPage(condition, pageable);
+    }
+
+    @PostMapping("/api/v1/postBookmark")
+    public BookmarkPostResponse postBookmarkV1(@RequestBody @Valid BookmarkPostRequest request) {
+        Post findPost = postRepository.findById(request.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
+        Long bookmarkedPostId = postService.createPostBookmark(request.getUserId(), findPost);
+        return new BookmarkPostResponse(bookmarkedPostId);
+    }
 
     @PostMapping("/api/v1/post")
     public CreatePostResponse postV1(@RequestBody @Valid CreatePostRequest request) {
@@ -91,6 +98,18 @@ public class PostController {
     @Data
     @AllArgsConstructor
     static class DeletePostResponse {
+        private Long postId;
+    }
+
+    @Data
+    static class BookmarkPostRequest {
+        private Long postId;
+        private Long userId;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class BookmarkPostResponse {
         private Long postId;
     }
 
