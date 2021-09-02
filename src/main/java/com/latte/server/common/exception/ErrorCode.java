@@ -15,7 +15,8 @@ public enum ErrorCode {
     NOT_FOUND_EMAIL(401, "Email is not found, Please check your email.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_PASSWORD(401, "Password is not found, Please check your Password.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_CATEGORY(404, "Cannot find category, Please check category id.", HttpStatus.NOT_FOUND),
-    NOT_FOUND_USER_CATEGORY(404, "Cannot find user category, Please check your path variable.", HttpStatus.NOT_FOUND);
+    NOT_FOUND_USER_CATEGORY(404, "Cannot find user category, Please check your path variable.", HttpStatus.NOT_FOUND),
+    FCM_NOT_ALLOWED(500, "Firebase Error. Please contact Latte Server Team", HttpStatus.INTERNAL_SERVER_ERROR),;
 
     private final int code;
     private final String message;

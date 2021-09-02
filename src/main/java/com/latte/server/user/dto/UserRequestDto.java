@@ -41,7 +41,8 @@ public class UserRequestDto {
                 this.nickName,
                 this.email,
                 toEncodePassword(),
-                UserRole.CLIENT
+                UserRole.CLIENT,
+                false
         );
     }
 

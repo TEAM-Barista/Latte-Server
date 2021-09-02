@@ -2,10 +2,7 @@ package com.latte.server.user.controller;
 
 import com.latte.server.category.domain.Category;
 import com.latte.server.user.domain.UserCategory;
-import com.latte.server.user.dto.UserCategoriesRequestDto;
-import com.latte.server.user.dto.UserCategoryResponseDto;
-import com.latte.server.user.dto.UserProfileImageUrlRequestDto;
-import com.latte.server.user.dto.UserRequestDto;
+import com.latte.server.user.dto.*;
 import com.latte.server.user.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +38,15 @@ public class UserController {
             @Valid @RequestBody UserProfileImageUrlRequestDto userProfileImageUrlRequestDto
     ) {
         userService.setProfileImage(userProfileImageUrlRequestDto, email);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/notify")
+    public ResponseEntity<Void> setAccessNotify(
+            @AuthenticationPrincipal String email,
+            @Valid @RequestBody UserAccessNotifyRequestDto UserAccessNotifyRequestDto
+    ) {
+        userService.setAccessNotify(UserAccessNotifyRequestDto, email);
         return ResponseEntity.ok().build();
     }
 

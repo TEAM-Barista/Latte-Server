@@ -7,10 +7,7 @@ import com.latte.server.common.exception.custom.NotFoundEmailException;
 import com.latte.server.common.exception.custom.NotFoundUserCategoryException;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.domain.UserCategory;
-import com.latte.server.user.dto.UserCategoriesRequestDto;
-import com.latte.server.user.dto.UserCategoryResponseDto;
-import com.latte.server.user.dto.UserProfileImageUrlRequestDto;
-import com.latte.server.user.dto.UserRequestDto;
+import com.latte.server.user.dto.*;
 import com.latte.server.user.repository.UserCategoryRepository;
 import com.latte.server.user.repository.UserRepository;
 import lombok.AccessLevel;
@@ -88,6 +85,15 @@ public class UserService {
                 .orElseThrow(NotFoundUserCategoryException::new);
 
         userCategoryRepository.deleteById(userCategory.getId());
+    }
+
+    public void setAccessNotify(UserAccessNotifyRequestDto userAccessNotifyRequestDto, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundEmailException::new);
+
+        user.setAccessNotify(userAccessNotifyRequestDto.getAccessNotify());
+
+        userRepository.save(user);
     }
 
     private UserCategory toEntity(User user, Category category) {

@@ -47,6 +47,10 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+    @NotEmpty
+    @Column(nullable = false)
+    private Boolean accessNotify;
+
     @Nullable
     private String profileImageUrl;
 
@@ -54,12 +58,13 @@ public class User extends BaseTimeEntity implements UserDetails {
     private List<UserCategory> userCategories;
 
     @Builder
-    public User(Long id, String nickName, String email, String password, UserRole userRole) {
+    public User(Long id, String nickName, String email, String password, UserRole userRole, Boolean accessNotify) {
         this.id = id;
         this.nickName = nickName;
         this.email = email;
         this.password = password;
         this.userRole = userRole;
+        this.accessNotify = accessNotify;
     }
 
     @Override
