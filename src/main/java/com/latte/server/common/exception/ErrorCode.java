@@ -13,7 +13,9 @@ public enum ErrorCode {
     EXPIRED_TOKEN(401, "Token is Expired, Please Refreshing token.", HttpStatus.UNAUTHORIZED),
     INVALID_EMAIL_OR_PASSWORD(401, "Email or Password, Please check your email or password.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_EMAIL(401, "Email is not found, Please check your email.", HttpStatus.UNAUTHORIZED),
-    NOT_FOUND_PASSWORD(401, "Password is not found, Please check your Password.", HttpStatus.UNAUTHORIZED);
+    NOT_FOUND_PASSWORD(401, "Password is not found, Please check your Password.", HttpStatus.UNAUTHORIZED),
+    NOT_FOUND_CATEGORY(404, "Cannot find category, Please check category id.", HttpStatus.NOT_FOUND),
+    NOT_FOUND_USER_CATEGORY(404, "Cannot find user category, Please check your path variable.", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

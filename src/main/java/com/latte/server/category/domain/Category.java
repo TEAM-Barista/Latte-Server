@@ -1,11 +1,14 @@
 package com.latte.server.category.domain;
 
 import com.latte.server.common.domain.BaseTimeEntity;
+import com.latte.server.user.domain.User;
+import com.latte.server.user.domain.UserCategory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Donggun on 2021-08-05
@@ -24,6 +27,9 @@ public class Category extends BaseTimeEntity {
 
     private String category;
     private String kind;
+
+    @OneToMany(mappedBy = "CATEGORY_TB", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<UserCategory> userCategories;
 
     private Category(String category, String kind) {
         this.category = category;

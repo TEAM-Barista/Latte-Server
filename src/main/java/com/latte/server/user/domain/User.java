@@ -28,6 +28,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence_gen")
     @SequenceGenerator(name = "user_sequence_gen", sequenceName = "user_sequence")
+    @Column(name = "user_id")
     private Long id;
 
     @NotEmpty
@@ -48,6 +49,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Nullable
     private String profileImageUrl;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<UserCategory> userCategories;
 
     @Builder
     public User(Long id, String nickName, String email, String password, UserRole userRole) {

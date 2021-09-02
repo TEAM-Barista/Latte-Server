@@ -58,6 +58,20 @@ public class CustomExceptionHandler {
         return new ResponseEntity(errorBody, errorBody.getHttpStatus());
     }
 
+    @ExceptionHandler(NotFoundCategoryException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundCategoryException(NotFoundCategoryException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
+    @ExceptionHandler(NotFoundUserCategoryException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundUserCategoryException(NotFoundUserCategoryException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
     private ErrorBody getErrorBody(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         return new ErrorBody(
