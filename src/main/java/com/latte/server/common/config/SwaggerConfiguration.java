@@ -20,7 +20,7 @@ public class SwaggerConfiguration {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.zeepy.server"))
+                .apis(RequestHandlerSelectors.basePackage("com.latte.server"))
                 .paths(PathSelectors.any())
                 .build();
     }
