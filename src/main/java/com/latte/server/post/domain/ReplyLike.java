@@ -1,15 +1,20 @@
 package com.latte.server.post.domain;
 
+import com.latte.server.common.domain.BaseTimeEntity;
 import com.latte.server.user.domain.User;
 import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * Created by Donggun on 2021-08-05
+ */
+
 @Entity
 @Table(name = "REPLY_LIKE_TB")
 @Getter
-public class ReplyLike {
+public class ReplyLike extends BaseTimeEntity {
 
     @Id
     @GeneratedValue

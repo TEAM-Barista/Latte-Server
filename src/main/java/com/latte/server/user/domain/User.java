@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * User Domain
  */
@@ -51,13 +50,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     private String profileImageUrl;
 
     @Builder
-    public User(
-            Long id,
-            String nickName,
-            String email,
-            String password,
-            UserRole userRole
-    ) {
+    public User(Long id, String nickName, String email, String password, UserRole userRole) {
         this.id = id;
         this.nickName = nickName;
         this.email = email;
@@ -67,9 +60,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(
-                new SimpleGrantedAuthority(this.userRole.name())
-        );
+        return Collections.singletonList(new SimpleGrantedAuthority(this.userRole.name()));
     }
 
     @Override
