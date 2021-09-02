@@ -3,6 +3,7 @@ package com.latte.server.user.controller;
 import com.latte.server.category.domain.Category;
 import com.latte.server.user.domain.UserCategory;
 import com.latte.server.user.dto.UserCategoriesRequestDto;
+import com.latte.server.user.dto.UserCategoryResponseDto;
 import com.latte.server.user.dto.UserProfileImageUrlRequestDto;
 import com.latte.server.user.dto.UserRequestDto;
 import com.latte.server.user.service.UserService;
@@ -47,6 +48,13 @@ public class UserController {
      * TODO: Delete User Profile
      * Delete
      */
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<UserCategoryResponseDto>> getUserCategories(
+            @AuthenticationPrincipal String email
+    ) {
+        return ResponseEntity.ok(userService.getUserCategories(email));
+    }
 
     @PatchMapping("/categories")
     public ResponseEntity<Void> setUserCategories(

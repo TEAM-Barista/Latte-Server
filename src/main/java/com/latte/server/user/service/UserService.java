@@ -8,6 +8,7 @@ import com.latte.server.common.exception.custom.NotFoundUserCategoryException;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.domain.UserCategory;
 import com.latte.server.user.dto.UserCategoriesRequestDto;
+import com.latte.server.user.dto.UserCategoryResponseDto;
 import com.latte.server.user.dto.UserProfileImageUrlRequestDto;
 import com.latte.server.user.dto.UserRequestDto;
 import com.latte.server.user.repository.UserCategoryRepository;
@@ -46,6 +47,15 @@ public class UserService {
         user.setProfileImageUrl(userProfileImageUrlRequestDto.getProfileImageUrl());
 
         userRepository.save(user);
+    }
+
+    public List<UserCategoryResponseDto> getUserCategories(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundEmailException::new);
+
+        List<UserCategory> userCategoryList = userCategoryRepository.findByUser(user);
+
+        return UserCategoryResponseDto.listOf(userCategoryList);
     }
 
     public void setUserCategories(UserCategoriesRequestDto userCategoriesRequestDto, String email) {

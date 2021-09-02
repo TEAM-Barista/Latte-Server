@@ -28,7 +28,7 @@ public class Category extends BaseTimeEntity {
     private String category;
     private String kind;
 
-    @OneToMany(mappedBy = "CATEGORY_TB", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<UserCategory> userCategories;
 
     private Category(String category, String kind) {

@@ -13,4 +13,5 @@ import java.util.Optional;
  */
 public interface UserCategoryRepository extends JpaRepository<UserCategory, Long> {
     Optional<UserCategory> findByUserAndCategory(User user, Category category);
+    List<UserCategory> findByUser(User user);
 }
