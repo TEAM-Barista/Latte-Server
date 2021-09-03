@@ -13,6 +13,7 @@ import com.latte.server.user.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +29,18 @@ public class UserService {
     private final UserCategoryRepository userCategoryRepository;
     private final CategoryRepository categoryRepository;
 
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
+    @Transactional
     public Long create(UserRequestDto userRequestDto) {
         User newUser = userRepository.save(userRequestDto.toEntity());
         return newUser.getId();
     }
 
+    @Transactional
     public void setProfileImage(UserProfileImageUrlRequestDto userProfileImageUrlRequestDto, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundEmailException::new);
@@ -46,6 +50,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public List<UserCategoryResponseDto> getUserCategories(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundEmailException::new);
@@ -55,6 +60,7 @@ public class UserService {
         return UserCategoryResponseDto.listOf(userCategoryList);
     }
 
+    @Transactional
     public void setUserCategories(UserCategoriesRequestDto userCategoriesRequestDto, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundEmailException::new);
@@ -64,6 +70,7 @@ public class UserService {
         userCategoryRepository.saveAll(toEntities(user, categoryList));
     }
 
+    @Transactional
     public void setUserCategory(Long categoryId, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundEmailException::new);
@@ -74,6 +81,7 @@ public class UserService {
         userCategoryRepository.save(toEntity(user, category));
     }
 
+    @Transactional
     public void deleteUserCategory(Long categoryId, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundEmailException::new);
@@ -87,6 +95,7 @@ public class UserService {
         userCategoryRepository.deleteById(userCategory.getId());
     }
 
+    @Transactional
     public void setAccessNotify(UserAccessNotifyRequestDto userAccessNotifyRequestDto, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundEmailException::new);

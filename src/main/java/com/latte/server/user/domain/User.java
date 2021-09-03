@@ -1,6 +1,7 @@
 package com.latte.server.user.domain;
 
 import com.latte.server.common.domain.BaseTimeEntity;
+import com.latte.server.push.domain.PushToken;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -56,6 +57,9 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<UserCategory> userCategories;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<PushToken> userPushTokens;
 
     @Builder
     public User(Long id, String nickName, String email, String password, UserRole userRole, Boolean accessNotify) {
