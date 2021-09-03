@@ -2,7 +2,9 @@ package com.latte.server.post.domain;
 
 import com.latte.server.common.domain.BaseTimeEntity;
 import com.latte.server.user.domain.User;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "REPLY_LIKE_TB")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ReplyLike extends BaseTimeEntity {
 
     @Id
@@ -29,6 +32,13 @@ public class ReplyLike extends BaseTimeEntity {
     @JoinColumn(name = "uid")
     private User user;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private ReplyLike(Reply reply, User user) {
+        this.reply = reply;
+        this.user = user;
+    }
+
+    // == 생성 메서드 == //
+    public static ReplyLike createReplyLike(Reply reply, User user) {
+        return new ReplyLike(reply, user);
+    }
 }

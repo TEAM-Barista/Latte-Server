@@ -5,6 +5,7 @@ import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
+import com.latte.server.interview.dto.CarouselDto;
 import com.latte.server.interview.repository.InterviewBookmarkRepository;
 import com.latte.server.interview.repository.InterviewLikeRepository;
 import com.latte.server.interview.repository.InterviewRepository;
@@ -14,6 +15,9 @@ import com.latte.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Donggun on 2021-08-05
@@ -33,6 +37,24 @@ public class InterviewService {
     private final InterviewBookmarkRepository interviewBookmarkRepository;
     private final InterviewTagRepository interviewTagRepository;
 
+    public CarouselDto loadCarousel(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
+        Long interviewId = interviewByCreatedDate.getId();
+        String interviewTitle = interviewByCreatedDate.getInterviewTitle();
+        String interviewContent = interviewByCreatedDate.getInterviewContent();
+        int interviewLikeCount = interviewLikeRepository.countByInterview(interviewByCreatedDate);
+        int interviewBookmarkCount = interviewBookmarkRepository.countByInterview(interviewByCreatedDate);
+        int isLiked = interviewLikeRepository.countByInterviewAndUser(interviewByCreatedDate, user);
+        int isBookmarked = interviewBookmarkRepository.countByInterviewAndUser(interviewByCreatedDate, user);
+
+        List<InterviewTag> interviewTags = interviewTagRepository.findByInterview(interviewByCreatedDate);
+
+        return new CarouselDto(interviewId, interviewTitle, interviewContent, interviewLikeCount, interviewBookmarkCount,
+                isLiked, isBookmarked, interviewTags);
+    }
 
     @Transactional
     public Long createInterview(Long userId, String interviewContent, String interviewTitle) {

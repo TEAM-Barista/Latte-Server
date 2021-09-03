@@ -59,4 +59,12 @@ public class Reply extends BaseTimeEntity {
     public static Reply createNewReply(User user, Post post, String replyContent, int isDeleted) {
         return new Reply(user, post, 0, 0, 0, replyContent, isDeleted);
     }
+
+    public void changeReply(String replyContent) {
+        this.replyContent = replyContent;
+    }
+
+    public void deleteReply() {
+        this.isDeleted = 1;
+    }
 }

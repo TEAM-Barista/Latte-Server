@@ -6,6 +6,8 @@ import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.post.domain.Post;
+import com.latte.server.post.domain.Reply;
+import com.latte.server.post.domain.Tag;
 import com.latte.server.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -60,6 +62,13 @@ public class InitDb {
 
             InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
             em.persist(interviewTag);
+
+            Tag tag = Tag.createTag(post1, category);
+            em.persist(tag);
+
+            Reply reply = Reply.createNewReply(user, post1, "test reply", 0);
+            em.persist(reply);
+
         }
 
         private Post createPost(User user, String postContent, String postTitle, String postCode) {

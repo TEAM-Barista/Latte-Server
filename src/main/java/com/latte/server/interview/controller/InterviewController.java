@@ -33,42 +33,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InterviewController {
     private static final int CAROUSEL_SIZE = 1;
-    private static final String NOT_EXIST_USER = "[ERROR] No such User";
     private static final String NOT_EXIST_INTERVIEW = "[ERROR] No such Interview";
 
-    private final UserRepository userRepository;
     private final InterviewRepository interviewRepository;
-    private final InterviewBookmarkRepository interviewBookmarkRepository;
-    private final InterviewLikeRepository interviewLikeRepository;
-    private final InterviewTagRepository interviewTagRepository;
 
     private final InterviewService interviewService;
 
 
     @GetMapping("/api/v1/interview/carousel")
     public CarouselResult carouselV1(Long uid) {
-        User user = userRepository.findById(uid).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
-        Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
-        Long interviewId = interviewByCreatedDate.getId();
-        String interviewTitle = interviewByCreatedDate.getInterviewTitle();
-        String interviewContent = interviewByCreatedDate.getInterviewContent();
-        int interviewLikeCount = interviewLikeRepository.countByInterview(interviewByCreatedDate);
-        int interviewBookmarkCount = interviewBookmarkRepository.countByInterview(interviewByCreatedDate);
-        int isLiked = interviewLikeRepository.countByInterviewAndUser(interviewByCreatedDate, user);
-        int isBookmarked = interviewBookmarkRepository.countByInterviewAndUser(interviewByCreatedDate, user);
-
-        List<InterviewTag> interviewTags = interviewTagRepository.findByInterview(interviewByCreatedDate);
-
-        List<String> categories = new ArrayList<>();
-
-        for (InterviewTag interviewTag : interviewTags) {
-            categories.add(interviewTag.getCategory().getCategory());
-        }
-
-        CarouselDto carousel = new CarouselDto(interviewId, interviewTitle, interviewContent, interviewLikeCount, interviewBookmarkCount, isLiked, isBookmarked);
-
-        return new CarouselResult(CAROUSEL_SIZE, carousel, categories);
+        return new CarouselResult(CAROUSEL_SIZE, interviewService.loadCarousel(uid));
     }
 
 
@@ -122,7 +96,6 @@ public class InterviewController {
     static class CarouselResult<T> {
         private int size;
         private T data;
-        private List<String> tags;
     }
 
 }
