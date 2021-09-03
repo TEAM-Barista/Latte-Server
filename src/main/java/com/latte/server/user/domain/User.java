@@ -1,6 +1,7 @@
 package com.latte.server.user.domain;
 
 import com.latte.server.common.domain.BaseTimeEntity;
+import com.latte.server.push.domain.PushToken;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,19 +49,27 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+    @NotNull
+    @Column(nullable = false)
+    private Boolean accessNotify;
+
     @Nullable
     private String profileImageUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<UserCategory> userCategories;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<PushToken> userPushTokens;
+
     @Builder
-    public User(Long id, String nickName, String email, String password, UserRole userRole) {
+    public User(Long id, String nickName, String email, String password, UserRole userRole, Boolean accessNotify) {
         this.id = id;
         this.nickName = nickName;
         this.email = email;
         this.password = password;
         this.userRole = userRole;
+        this.accessNotify = accessNotify;
     }
 
     @Override

@@ -72,6 +72,13 @@ public class CustomExceptionHandler {
         return new ResponseEntity(errorBody, errorBody.getHttpStatus());
     }
 
+    @ExceptionHandler(FirebaseCloudMessageException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> firebaseCloudMessageException(FirebaseCloudMessageException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
     private ErrorBody getErrorBody(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         return new ErrorBody(

@@ -31,7 +31,7 @@ public class Category extends BaseTimeEntity {
     @OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<UserCategory> userCategories;
 
-    private Category(String category, String kind) {
+    public Category(String category, String kind) {
         this.category = category;
         this.kind = kind;
     }
