@@ -70,15 +70,14 @@ public class InitDb {
 
         private User createUser(String userName, String userId) {
             User user = new User().builder()
-                    .userRole(UserRole.ADMIN)
+                    .userRole(UserRole.ROLE_ADMIN)
                     .email(userId)
                     .nickName(userName)
                     .password("$2a$10$GTHxsIH/0g0j/cv9MF9Iu.7mX.KMJvuGpDn/kMtBxIftCTgdsoLD6")
+                    .accessNotify(false)
                     .build();
             return user;
         }
-
-
     }
 
 }

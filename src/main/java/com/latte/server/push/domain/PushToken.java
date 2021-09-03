@@ -1,5 +1,6 @@
 package com.latte.server.push.domain;
 
+import com.latte.server.common.domain.BaseTimeEntity;
 import com.latte.server.user.domain.User;
 import lombok.*;
 
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @Entity
-public class PushToken {
+public class PushToken extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence_gen")
     @SequenceGenerator(name = "user_sequence_gen", sequenceName = "user_sequence")

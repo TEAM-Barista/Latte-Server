@@ -71,7 +71,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/category/{id}")
+    @PatchMapping("/categories/{id}")
     public ResponseEntity<Void> setUserCategory(
             @AuthenticationPrincipal String email,
             @PathVariable Long id
@@ -80,7 +80,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/category/{id}")
+    @DeleteMapping("/categories/{id}")
     public ResponseEntity<Void> deleteUserCategory(
             @AuthenticationPrincipal String email,
             @PathVariable Long id
