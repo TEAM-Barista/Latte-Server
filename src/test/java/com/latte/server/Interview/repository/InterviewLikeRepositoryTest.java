@@ -6,6 +6,7 @@ import com.latte.server.interview.repository.InterviewLikeRepository;
 import com.latte.server.interview.repository.InterviewRepository;
 import com.latte.server.interview.service.InterviewService;
 import com.latte.server.user.domain.User;
+import com.latte.server.user.domain.UserRole;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +93,13 @@ public class InterviewLikeRepositoryTest {
 
 
     private User createUser() {
-        User user = User.createTestUser("userA", "test", "test@test.com", "test intro");
+        User user = new User().builder()
+                .userRole(UserRole.ROLE_ADMIN)
+                .email("test@test.com")
+                .nickName("userA")
+                .password("$2a$10$GTHxsIH/0g0j/cv9MF9Iu.7mX.KMJvuGpDn/kMtBxIftCTgdsoLD6")
+                .accessNotify(false)
+                .build();
         em.persist(user);
         return user;
     }
