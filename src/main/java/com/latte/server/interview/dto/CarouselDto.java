@@ -20,6 +20,7 @@ public class CarouselDto {
     private int isLiked;
     private int isBookmarked;
     private List<String> interviewTags = new ArrayList<>();
+    private List<Long> interviewTagIds = new ArrayList<>();
 
     public CarouselDto(Long interviewId, String interviewTitle, String interviewContent, int interviewLikeCount,
                        int interviewBookmarkCount, int isLiked, int isBookmarked, List<InterviewTag> interviewTags) {
@@ -31,11 +32,14 @@ public class CarouselDto {
         this.isLiked = isLiked;
         this.isBookmarked = isBookmarked;
 
-        List<String> categories = new ArrayList<>();
+        List<String> interviewTagNames = new ArrayList<>();
+        List<Long> interviewTagIds = new ArrayList<>();
 
         for (InterviewTag interviewTag : interviewTags) {
-            categories.add(interviewTag.getCategory().getCategory());
+            interviewTagNames.add(interviewTag.getCategory().getCategory());
+            interviewTagIds.add(interviewTag.getCategory().getId());
         }
-        this.interviewTags = categories;
+        this.interviewTags = interviewTagNames;
+        this.interviewTagIds = interviewTagIds;
     }
 }
