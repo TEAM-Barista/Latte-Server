@@ -1,6 +1,10 @@
 package com.latte.server.interview.repository;
 
 import com.latte.server.interview.domain.Interview;
+import com.latte.server.interview.dto.InterviewListDto;
+import com.latte.server.interview.dto.InterviewSearchCondition;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -10,4 +14,6 @@ import java.util.List;
 
 public interface InterviewRepositoryCustom {
     Interview findInterviewByCreatedDate();
+
+    Page<InterviewListDto> searchInterviewPageRecent(InterviewSearchCondition condition, Pageable pageable);
 }

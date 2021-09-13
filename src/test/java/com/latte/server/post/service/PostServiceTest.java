@@ -1,5 +1,6 @@
 package com.latte.server.post.service;
 
+import com.latte.server.category.domain.Category;
 import com.latte.server.post.domain.Bookmark;
 import com.latte.server.post.domain.Post;
 import com.latte.server.post.domain.Reply;
@@ -24,6 +25,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -66,6 +68,27 @@ public class PostServiceTest {
         assertThat(post.getPostTitle()).isEqualTo("test title");
         assertThat(post.getPostCode()).isEqualTo("#stdio.h");
         assertThat(post.getIsQna()).isEqualTo(0);
+        assertThat(post.getIsDeleted()).isEqualTo(0);
+
+    }
+
+    @Test
+    public void QnA_추가() {
+        //given
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+
+        //when
+        Long postId = postService.qna(user.getId(), postContent, postTitle, postCode);
+
+        //then
+        Post post = postRepository.findById(postId).get();
+        assertThat(post.getPostContent()).isEqualTo("test content");
+        assertThat(post.getPostTitle()).isEqualTo("test title");
+        assertThat(post.getPostCode()).isEqualTo("#stdio.h");
+        assertThat(post.getIsQna()).isEqualTo(1);
         assertThat(post.getIsDeleted()).isEqualTo(0);
 
     }
@@ -749,6 +772,38 @@ public class PostServiceTest {
         assertThat(reply.getIsDeleted()).isEqualTo(1);
     }
 
+    @Test
+    public void 포스트_태그_수정() {
+        //given
+        Post post = createPost();
+        Category category = createCategory();
+        Long postId = post.getId();
+        Long categoryId = category.getId();
+        List<Long> categoryIds = new ArrayList<>();
+        categoryIds.add(categoryId);
+
+        //when
+        Long findPostId = postService.updatePostTag(postId, categoryIds);
+        Post findPost = postRepository.findById(findPostId).get();
+
+        //then
+        List<Tag> tags = post.getPostTags();
+        assertThat(tags).isEqualTo(findPost.getPostTags());
+    }
+
+    private Post createPost() {
+        User user = User.createTestUser("userA", "test", "test@test.com", "test intro");
+        em.persist(user);
+        Post post = Post.createPost(user, "test content", "test title", "#stdio.h");
+        em.persist(post);
+        return post;
+    }
+
+    private Category createCategory() {
+        Category category = Category.createCategory("test category", "test kind");
+        em.persist(category);
+        return category;
+    }
 
     private User createUser() {
         User user = User.createTestUser("userA", "test", "test@test.com", "test intro");

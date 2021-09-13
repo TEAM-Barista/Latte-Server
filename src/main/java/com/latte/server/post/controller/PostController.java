@@ -8,7 +8,6 @@ import com.latte.server.post.repository.PostRepository;
 import com.latte.server.post.repository.ReplyRepository;
 import com.latte.server.post.repository.TagRepository;
 import com.latte.server.post.service.PostService;
-import com.latte.server.post.service.TagService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +31,6 @@ public class PostController {
     private final ReplyRepository replyRepository;
 
     private final PostService postService;
-
 
     @GetMapping("/api/v1/postList")
     public Page<PostListDto> postListV1(PostSearchCondition condition, Pageable pageable) {
@@ -92,6 +88,23 @@ public class PostController {
         return new CreatePostResponse(postId);
     }
 
+    @PostMapping("/api/v1/qna")
+    public CreatePostResponse qnaV1(@RequestBody @Valid CreatePostRequest request) {
+
+        Long postId = postService.qna(request.getUserId(), request.getPostContent(), request.getPostTitle(), request.getPostCode());
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
+        List<Long> postTags = request.getPostTags();
+        for (Long postTag : postTags) {
+            Tag tag = tagRepository.findById(postTag)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
+            post.addPostTag(tag);
+        }
+
+        return new CreatePostResponse(postId);
+    }
+
     @PostMapping("/api/v1/reply")
     public CreateReplyResponse replyV1(@RequestBody @Valid CreateReplyRequest request) {
 
@@ -130,6 +143,12 @@ public class PostController {
         return new DeletePostResponse(request.getPostId());
     }
 
+    @PostMapping("/api/v1/updatePostTags")
+    public UpdatePostTagResponse updatePostTagsV1(@RequestBody @Valid UpdatePostTagRequest request) {
+        postService.updatePostTag(request.getPostId(), request.getTagIds());
+        return new UpdatePostTagResponse(request.getPostId());
+    }
+
     @PutMapping("/api/v1/updatePost")
     public UpdatePostResponse updatePostV1(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
         postService.update(postId, request.postContent, request.postTitle, request.postCode);
@@ -146,6 +165,18 @@ public class PostController {
     @Data
     @AllArgsConstructor
     static class UpdatePostResponse {
+        private Long postId;
+    }
+
+    @Data
+    static class UpdatePostTagRequest {
+        private Long postId;
+        private List<Long> tagIds;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class UpdatePostTagResponse {
         private Long postId;
     }
 

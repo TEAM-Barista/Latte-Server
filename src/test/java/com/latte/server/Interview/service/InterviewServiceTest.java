@@ -5,16 +5,21 @@ import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
-import com.latte.server.interview.repository.InterviewBookmarkRepository;
-import com.latte.server.interview.repository.InterviewLikeRepository;
-import com.latte.server.interview.repository.InterviewRepository;
-import com.latte.server.interview.repository.InterviewTagRepository;
+import com.latte.server.interview.dto.CarouselDto;
+import com.latte.server.interview.dto.InterviewListDto;
+import com.latte.server.interview.dto.InterviewSearchCondition;
+import com.latte.server.interview.repository.*;
 import com.latte.server.interview.service.InterviewService;
+import com.latte.server.post.domain.SeniorRequest;
+import com.latte.server.post.dto.PostListDto;
+import com.latte.server.post.dto.PostSearchCondition;
 import com.latte.server.user.domain.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +50,9 @@ public class InterviewServiceTest {
     InterviewBookmarkRepository interviewBookMarkRepository;
     @Autowired
     InterviewTagRepository interviewTagRepository;
+    @Autowired
+    SeniorRequestRepository seniorRequestRepository;
+
     @PersistenceContext
     EntityManager em;
 
@@ -183,6 +191,45 @@ public class InterviewServiceTest {
 
         assertThat(findTags.get(1).getCategory()).isEqualTo(category2);
         assertThat(findTags.get(1).getInterview()).isEqualTo(interview);
+    }
+
+    @Test
+    public void 인터뷰_리스트_최신순() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String interviewContent = "test content";
+        String interviewTitle = "test title";
+        for (int i = 0; i < 100; i++) {
+            interviewService.createInterview(user.getId(), interviewContent + i, interviewTitle + i);
+        }
+        InterviewSearchCondition condition = new InterviewSearchCondition();
+        condition.setUserId(userId);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 7);
+        Page<InterviewListDto> result = interviewRepository.searchInterviewPageRecent(condition, pageRequest);
+
+        //then
+        assertThat(result.getSize()).isEqualTo(7);
+        assertThat(result.getContent()).extracting("interviewTitle").containsExactly("test title99", "test title98", "test title97", "test title96", "test title95", "test title94", "test title93");
+        assertThat(result.getContent()).extracting("interviewContent").containsExactly("test content99", "test content98", "test content97", "test content96", "test content95", "test content94", "test content93");
+    }
+
+    @Test
+    public void 인터뷰_질문_요청() {
+        //given
+        User user = createUser();
+        Interview interview = Interview.createInterview(user, "test content", "test title");
+
+        //when
+        Long seniorRequestId = interviewService.createSeniorRequest(user.getId(), interview, "test title", "test content");
+
+        //then
+        SeniorRequest findSeniorRequest = seniorRequestRepository.findById(seniorRequestId).get();
+        assertThat(findSeniorRequest.getSeniorRequestTitle()).isEqualTo("test title");
+        assertThat(findSeniorRequest.getSeniorRequestContent()).isEqualTo("test content");
+        assertThat(findSeniorRequest.getInterview()).isEqualTo(interview);
     }
 
     private User createUser() {

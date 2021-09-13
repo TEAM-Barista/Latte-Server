@@ -28,7 +28,7 @@ public class Post extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uid")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "post_content")
@@ -65,9 +65,18 @@ public class Post extends BaseTimeEntity {
         tag.changePost(this);
     }
 
+    public void clearPostTag() {
+        postTags = new ArrayList<>();
+    }
+
     // == 생성 메서드 == //
     public static Post createPost(User user, String postContent, String postTitle, String postCode) {
         Post post = new Post(user, postContent, postTitle, postCode, 0, 0);
+        return post;
+    }
+
+    public static Post createQna(User user, String postContent, String postTitle, String postCode) {
+        Post post = new Post(user, postContent, postTitle, postCode, 0, 1);
         return post;
     }
 
@@ -76,6 +85,7 @@ public class Post extends BaseTimeEntity {
         this.postTitle = postTitle;
         this.postCode = postCode;
     }
+
 
     public void deletePost() {
         this.isDeleted = 1;

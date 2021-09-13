@@ -3,6 +3,8 @@ package com.latte.server.interview.controller;
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.dto.CarouselDto;
+import com.latte.server.interview.dto.InterviewListDto;
+import com.latte.server.interview.dto.InterviewSearchCondition;
 import com.latte.server.interview.repository.InterviewBookmarkRepository;
 import com.latte.server.interview.repository.InterviewLikeRepository;
 import com.latte.server.interview.repository.InterviewRepository;
@@ -15,6 +17,8 @@ import com.latte.server.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,6 +70,21 @@ public class InterviewController {
         return new LikeInterviewResponse(interviewId);
     }
 
+    @PostMapping("/api/v1/seniorRequest")
+    public SeniorRequestResponse seniorRequestV1(@RequestBody @Valid SeniorRequestRequest request) {
+        Interview findInterview = interviewRepository.findById(request.getInterviewId())
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+
+        Long seniorRequestId = interviewService.createSeniorRequest(request.getUserId(), findInterview, request.getTitle(), request.getContent());
+
+        return new SeniorRequestResponse(seniorRequestId);
+    }
+
+    @GetMapping("/api/v1/interviewListRecent")
+    public Page<InterviewListDto> interviewListRecentV1(InterviewSearchCondition condition, Pageable pageable) {
+        return interviewRepository.searchInterviewPageRecent(condition, pageable);
+    }
+
     @Data
     static class BookmarkInterviewRequest {
         private Long interviewId;
@@ -88,6 +107,20 @@ public class InterviewController {
     @AllArgsConstructor
     static class LikeInterviewResponse {
         private Long interviewId;
+    }
+
+    @Data
+    static class SeniorRequestRequest {
+        private Long interviewId;
+        private Long userId;
+        private String title;
+        private String content;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class SeniorRequestResponse {
+        private Long seniorRequestId;
     }
 
 
