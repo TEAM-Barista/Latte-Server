@@ -143,15 +143,10 @@ public class PostController {
         return new DeletePostResponse(request.getPostId());
     }
 
-    @PostMapping("/api/v1/updatePostTags")
-    public UpdatePostTagResponse updatePostTagsV1(@RequestBody @Valid UpdatePostTagRequest request) {
-        postService.updatePostTag(request.getPostId(), request.getTagIds());
-        return new UpdatePostTagResponse(request.getPostId());
-    }
-
     @PutMapping("/api/v1/updatePost")
     public UpdatePostResponse updatePostV1(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
         postService.update(postId, request.postContent, request.postTitle, request.postCode);
+        postService.updatePostTag(postId, request.getTagIds());
         return new UpdatePostResponse(postId);
     }
 
@@ -160,23 +155,12 @@ public class PostController {
         private String postTitle;
         private String postContent;
         private String postCode;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class UpdatePostResponse {
-        private Long postId;
-    }
-
-    @Data
-    static class UpdatePostTagRequest {
-        private Long postId;
         private List<Long> tagIds;
     }
 
     @Data
     @AllArgsConstructor
-    static class UpdatePostTagResponse {
+    static class UpdatePostResponse {
         private Long postId;
     }
 
