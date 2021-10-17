@@ -48,8 +48,8 @@ public class InterviewController {
 
 
     @GetMapping("/api/v1/interview/carousel")
-    public CarouselResult carouselV1(Long uid) {
-        return new CarouselResult(CAROUSEL_SIZE, interviewService.loadCarousel(uid));
+    public CarouselDto carouselV1(Long uid) {
+        return interviewService.loadCarousel(uid);
     }
 
 
@@ -138,13 +138,6 @@ public class InterviewController {
         private Long seniorRequestId;
     }
 
-
-    @Data
-    @AllArgsConstructor
-    static class CarouselResult<T> {
-        private int size;
-        private T data;
-    }
 
     @Data
     @AllArgsConstructor
