@@ -31,7 +31,7 @@ public class InterviewDetailDto {
 
     public InterviewDetailDto(Interview interview, Long bookmarkCount, long isBookmarked, Long likeCount, long isLiked) {
         this.userId = interview.getUser().getId();
-        this.userName = interview.getUser().getUserName();
+        this.userName = interview.getUser().getNickName();
         this.interviewId = interview.getId();
         this.interviewTitle = interview.getInterviewTitle();
         this.interviewContent = interview.getInterviewContent();

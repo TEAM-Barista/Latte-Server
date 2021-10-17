@@ -66,7 +66,6 @@ public class PostServiceTest {
         String updateContent = "update content";
         String updataeTitle = "update title";
         String updateCode = "update code";
-        int updateQna = 1;
 
         //when
         postService.update(postId, updateContent, updataeTitle, updateCode);
@@ -76,7 +75,6 @@ public class PostServiceTest {
         Assertions.assertThat(post.getPostContent()).isEqualTo("update content");
         Assertions.assertThat(post.getPostTitle()).isEqualTo("update title");
         Assertions.assertThat(post.getPostCode()).isEqualTo("update code");
-        Assertions.assertThat(post.getIsQna()).isEqualTo(1);
 
     }
 

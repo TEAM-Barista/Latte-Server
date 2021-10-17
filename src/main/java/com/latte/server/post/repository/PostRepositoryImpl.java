@@ -289,7 +289,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     private BooleanExpression replyUser(String replyUserName) {
-        return replyUserName != null ? reply.user.userName.contains(replyUserName) : null;
+        return replyUserName != null ? reply.user.nickName.contains(replyUserName) : null;
     }
 
     private BooleanExpression replyContentKeyword(String keyword) {

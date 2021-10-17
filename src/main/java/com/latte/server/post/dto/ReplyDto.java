@@ -28,8 +28,8 @@ public class ReplyDto {
     public ReplyDto(Post post, User user, Reply reply, Long replyLikeCount, long isLiked) {
         this.postId = post.getId();
         this.userId = user.getId();
-        this.image = user.getImage();
-        this.userName = user.getUserName();
+        this.image = user.getProfileImageUrl();
+        this.userName = user.getNickName();
         this.replyId = reply.getId();
         this.replyContent = reply.getReplyContent();
         this.createdDate = reply.getCreatedDate();

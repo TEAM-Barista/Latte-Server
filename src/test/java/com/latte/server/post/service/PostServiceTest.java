@@ -793,7 +793,7 @@ public class PostServiceTest {
     }
 
     private Post createPost() {
-        User user = User.createTestUser("userA", "test", "test@test.com", "test intro");
+        User user = new User(null, "userA", "test@test.com", "testpass", UserRole.ROLE_CLIENT, false);
         em.persist(user);
         Post post = Post.createPost(user, "test content", "test title", "#stdio.h");
         em.persist(post);

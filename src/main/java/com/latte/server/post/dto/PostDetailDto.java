@@ -29,7 +29,7 @@ public class PostDetailDto {
 
     public PostDetailDto(Post post, Long replyCount, Long bookmarkCount, long isBookmarked) {
         this.userId = post.getUser().getId();
-        this.userName = post.getUser().getUserName();
+        this.userName = post.getUser().getNickName();
         this.postId = post.getId();
         this.postTitle = post.getPostTitle();
         this.postContent = post.getPostContent();
