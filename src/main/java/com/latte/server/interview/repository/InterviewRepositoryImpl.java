@@ -1,9 +1,6 @@
 package com.latte.server.interview.repository;
 
-import com.latte.server.interview.domain.Interview;
-import com.latte.server.interview.domain.QInterview;
-import com.latte.server.interview.domain.QInterviewBookmark;
-import com.latte.server.interview.domain.QInterviewLike;
+import com.latte.server.interview.domain.*;
 import com.latte.server.interview.dto.*;
 import com.latte.server.post.domain.Post;
 import com.latte.server.post.dto.PostListDto;
@@ -82,7 +79,8 @@ public class InterviewRepositoryImpl implements InterviewRepositoryCustom {
                         interview.isDeleted.eq(NOT_DELETED),
                         titleKeyword(condition.getTitleKeyword()),
                         contentKeyword(condition.getContentKeyword()),
-                        dateAfter(condition.getDateAfter())
+                        dateAfter(condition.getDateAfter()),
+                        dateBefore(condition.getDateBefore())
                 )
                 .groupBy(interview.id)
                 .orderBy(interview.id.desc())
@@ -97,22 +95,80 @@ public class InterviewRepositoryImpl implements InterviewRepositoryCustom {
                         interview.isDeleted.eq(NOT_DELETED),
                         titleKeyword(condition.getTitleKeyword()),
                         contentKeyword(condition.getContentKeyword()),
-                        dateAfter(condition.getDateAfter())
+                        dateAfter(condition.getDateAfter()),
+                        dateBefore(condition.getDateBefore())
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
     }
 
+    @Override
+    public Page<InterviewListDto> searchInterviewPageRecommend(InterviewSearchCondition condition, Pageable pageable) {
+        List<InterviewListDto> content = queryFactory
+                .select(new QInterviewListDto(
+                        interview,
+                        count(interviewLike),
+                        count(interviewBookmark),
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(count(interviewLike))
+                                        .from(interviewLike)
+                                        .where(interviewLike.user.id.eq(condition.getUserId()))
+                                , "isLiked"
+                        ),
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(count(interviewBookmark))
+                                        .from(interviewBookmark)
+                                        .where(interviewBookmark.user.id.eq(condition.getUserId()))
+                                , "isBookmarked"
+                        )
+                ))
+                .from(interview)
+                .leftJoin(interviewLike)
+                .on(interviewLike.interview.id.eq(interview.id)).fetchJoin()
+                .leftJoin(interviewBookmark)
+                .on(interviewBookmark.interview.id.eq(interview.id)).fetchJoin()
+                .where(
+                        interview.isDeleted.eq(NOT_DELETED),
+                        dateBefore(condition.getDateBefore()),
+                        containsTag(condition.getInterviewTag())
+                )
+                .groupBy(interview.id)
+                .orderBy(interview.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // count 쿼리
+        JPAQuery<Interview> countQuery = queryFactory
+                .selectFrom(interview)
+                .where(
+                        interview.isDeleted.eq(NOT_DELETED),
+                        dateBefore(condition.getDateBefore()),
+                        containsTag(condition.getInterviewTag())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+    private BooleanExpression containsTag(InterviewTag interviewTag) {
+        return interviewTag != null ? interview.interviewTags.contains(interviewTag) : null;
+    }
 
     private BooleanExpression titleKeyword(String keyword) {
-        return keyword != null ? post.postTitle.contains(keyword) : null;
+        return keyword != null ? interview.interviewTitle.contains(keyword) : null;
     }
 
     private BooleanExpression contentKeyword(String keyword) {
-        return keyword != null ? post.postContent.contains(keyword) : null;
+        return keyword != null ? interview.interviewContent.contains(keyword) : null;
     }
 
     private BooleanExpression dateAfter(LocalDateTime localDateTime) {
-        return localDateTime != null ? post.createdDate.after(localDateTime) : null;
+        return localDateTime != null ? interview.createdDate.after(localDateTime) : null;
+    }
+
+    private BooleanExpression dateBefore(LocalDateTime localDateTime) {
+        return localDateTime != null ? interview.createdDate.before(localDateTime) : null;
     }
 }

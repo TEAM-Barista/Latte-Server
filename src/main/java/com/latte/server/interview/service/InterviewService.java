@@ -7,10 +7,12 @@ import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.dto.CarouselDto;
+import com.latte.server.interview.dto.InterviewDetailDto;
 import com.latte.server.interview.repository.*;
 import com.latte.server.post.domain.Post;
 import com.latte.server.post.domain.SeniorRequest;
 import com.latte.server.post.domain.Tag;
+import com.latte.server.post.dto.PostDetailDto;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -123,6 +125,7 @@ public class InterviewService {
     @Transactional
     public Long createInterviewTag(Interview interview, Category category) {
         InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
+        interview.addInterviewTag(interviewTag);
         interviewTagRepository.save(interviewTag);
         return interviewTag.getId();
     }
@@ -145,5 +148,22 @@ public class InterviewService {
             throw new IllegalArgumentException(NOT_EXIST_TEXT);
         }
     }
+
+    public InterviewDetailDto loadInterview(Long userId, Long interviewId) {
+
+        Interview findInterview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERIVEW));
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Long isBookmarked = interviewBookmarkRepository.countLongByInterviewAndUser(findInterview, findUser);
+        Long bookmarkCount = interviewBookmarkRepository.countLongByInterview(findInterview);
+
+        Long isLiked = interviewLikeRepository.countLongByInterviewAndUser(findInterview, findUser);
+        Long likeCount = interviewLikeRepository.countLongByInterview(findInterview);
+
+        return new InterviewDetailDto(findInterview, bookmarkCount, isBookmarked, likeCount, isLiked);
+    }
+
 
 }

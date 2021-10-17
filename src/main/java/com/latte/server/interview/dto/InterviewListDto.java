@@ -35,9 +35,10 @@ public class InterviewListDto {
         List<String> interviewTagNames = new ArrayList<>();
         List<Long> interviewTagIds = new ArrayList<>();
 
+        // interviewTag는 Category의 name으로, id는 category id 가 아닌 interivew id로 통일.
         for (InterviewTag interviewTag : interview.getInterviewTags()) {
             interviewTagNames.add(interviewTag.getCategory().getCategory());
-            interviewTagIds.add(interviewTag.getCategory().getId());
+            interviewTagIds.add(interviewTag.getId());
         }
         this.interviewTags = interviewTagNames;
         this.interviewTagIds = interviewTagIds;

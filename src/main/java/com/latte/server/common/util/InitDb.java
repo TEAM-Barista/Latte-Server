@@ -50,18 +50,18 @@ public class InitDb {
 
             Category category = Category.createCategory("category test", "kind test");
             em.persist(category);
-
-            Interview interview = Interview.createInterview(user, "test interview", "test interview title");
-            em.persist(interview);
-
-            InterviewBookmark interviewBookmark = InterviewBookmark.createInterviewBookmark(interview, user);
-            em.persist(interviewBookmark);
-
-            InterviewLike interviewLike = InterviewLike.createInterviewLike(interview, user);
-            em.persist(interviewLike);
-
-            InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
-            em.persist(interviewTag);
+//
+//            Interview interview = Interview.createInterview(user, "test interview", "test interview title");
+//            em.persist(interview);
+//
+//            InterviewBookmark interviewBookmark = InterviewBookmark.createInterviewBookmark(interview, user);
+//            em.persist(interviewBookmark);
+//
+//            InterviewLike interviewLike = InterviewLike.createInterviewLike(interview, user);
+//            em.persist(interviewLike);
+//
+//            InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
+//            em.persist(interviewTag);
 
             Tag tag = Tag.createTag(post1, category);
             em.persist(tag);

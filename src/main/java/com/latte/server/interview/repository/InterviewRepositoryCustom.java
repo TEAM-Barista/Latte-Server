@@ -16,4 +16,6 @@ public interface InterviewRepositoryCustom {
     Interview findInterviewByCreatedDate();
 
     Page<InterviewListDto> searchInterviewPageRecent(InterviewSearchCondition condition, Pageable pageable);
+
+    Page<InterviewListDto> searchInterviewPageRecommend(InterviewSearchCondition condition, Pageable pageable);
 }

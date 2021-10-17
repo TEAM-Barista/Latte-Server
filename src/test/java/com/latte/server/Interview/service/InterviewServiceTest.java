@@ -6,11 +6,15 @@ import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.dto.CarouselDto;
+import com.latte.server.interview.dto.InterviewDetailDto;
 import com.latte.server.interview.dto.InterviewListDto;
 import com.latte.server.interview.dto.InterviewSearchCondition;
 import com.latte.server.interview.repository.*;
 import com.latte.server.interview.service.InterviewService;
+import com.latte.server.post.domain.Post;
 import com.latte.server.post.domain.SeniorRequest;
+import com.latte.server.post.domain.Tag;
+import com.latte.server.post.dto.PostDetailDto;
 import com.latte.server.post.dto.PostListDto;
 import com.latte.server.post.dto.PostSearchCondition;
 import com.latte.server.user.domain.User;
@@ -20,12 +24,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -217,6 +224,42 @@ public class InterviewServiceTest {
     }
 
     @Test
+    public void 인터뷰_추천() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String interviewContent = "test content";
+        String interviewTitle = "test title";
+        Long findInterviewId = interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
+
+        Interview findInterview = interviewRepository.findById(findInterviewId).get();
+
+        Category testCategory1 = Category.createCategory("test1", "test");
+        Long interviewTag1 = interviewService.createInterviewTag(findInterview, testCategory1);
+
+        Category testCategory2 = Category.createCategory("test2", "test");
+        Long interviewTag2 = interviewService.createInterviewTag(findInterview, testCategory2);
+
+        Category testCategory3 = Category.createCategory("test3", "test");
+        Long interviewTag3 = interviewService.createInterviewTag(findInterview, testCategory3);
+
+        InterviewSearchCondition condition = new InterviewSearchCondition();
+        condition.setUserId(userId);
+        InterviewTag interviewTag = interviewTagRepository.findById(interviewTag3).get();
+        condition.setInterviewTag(interviewTag);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 7);
+        Page<InterviewListDto> result = interviewRepository.searchInterviewPageRecommend(condition, pageRequest);
+
+        //then
+        assertThat(result.getContent()).extracting("interviewTitle").containsExactly("test title");
+        assertThat(result.getContent()).extracting("interviewContent").containsExactly("test content");
+        assertThat(result.getContent()).flatExtracting("interviewTagIds").contains(interviewTag3);
+        assertThat(result.getContent()).flatExtracting("interviewTags").contains("test3");
+    }
+
+    @Test
     public void 인터뷰_질문_요청() {
         //given
         User user = createUser();
@@ -231,6 +274,42 @@ public class InterviewServiceTest {
         assertThat(findSeniorRequest.getSeniorRequestContent()).isEqualTo("test content");
         assertThat(findSeniorRequest.getInterview()).isEqualTo(interview);
     }
+
+
+    @Test
+    public void 인터뷰_가져오기() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String interviewContent = "test content";
+        String interviewTitle = "test title";
+        Long interviewId = interviewService.createInterview(userId, interviewContent, interviewTitle);
+        Interview interview = interviewRepository.findById(interviewId).get();
+        LocalDateTime createdDate = interview.getCreatedDate();
+        List<InterviewTag> interviewTags = interview.getInterviewTags();
+        List<String> tagNames = new ArrayList<>();
+        List<Long> tagIds = new ArrayList<>();
+        for (InterviewTag interviewTag : interviewTags) {
+            tagIds.add(interviewTag.getCategory().getId());
+            tagNames.add(interviewTag.getCategory().getCategory());
+        }
+
+        //when
+        InterviewDetailDto interviewDetailDto = interviewService.loadInterview(userId, interviewId);
+
+        //then
+        assertThat(interviewDetailDto.getInterviewId()).isEqualTo(interviewId);
+        assertThat(interviewDetailDto.getInterviewTitle()).isEqualTo(interviewTitle);
+        assertThat(interviewDetailDto.getInterviewContent()).isEqualTo(interviewContent);
+        assertThat(interviewDetailDto.getBookmarkCount()).isEqualTo(0);
+        assertThat(interviewDetailDto.getLikeCount()).isEqualTo(0);
+        assertThat(interviewDetailDto.getIsLiked()).isEqualTo(0);
+        assertThat(interviewDetailDto.getIsBookmarked()).isEqualTo(0);
+        assertThat(interviewDetailDto.getCreatedDate()).isEqualTo(createdDate);
+        assertThat(interviewDetailDto.getTagIds()).isEqualTo(tagIds);
+        assertThat(interviewDetailDto.getTags()).isEqualTo(tagNames);
+    }
+
 
     private User createUser() {
         User user = User.createTestUser("userA", "test", "test@test.com", "test intro");

@@ -3,6 +3,7 @@ package com.latte.server.interview.controller;
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.dto.CarouselDto;
+import com.latte.server.interview.dto.InterviewDetailDto;
 import com.latte.server.interview.dto.InterviewListDto;
 import com.latte.server.interview.dto.InterviewSearchCondition;
 import com.latte.server.interview.repository.InterviewBookmarkRepository;
@@ -12,6 +13,7 @@ import com.latte.server.interview.repository.InterviewTagRepository;
 import com.latte.server.interview.service.InterviewService;
 import com.latte.server.post.controller.PostController;
 import com.latte.server.post.domain.Post;
+import com.latte.server.post.dto.PostDetailDto;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -37,6 +39,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class InterviewController {
     private static final int CAROUSEL_SIZE = 1;
+    private static final int LOADED_INTERVIEW_SIZE = 1;
     private static final String NOT_EXIST_INTERVIEW = "[ERROR] No such Interview";
 
     private final InterviewRepository interviewRepository;
@@ -85,6 +88,18 @@ public class InterviewController {
         return interviewRepository.searchInterviewPageRecent(condition, pageable);
     }
 
+    @GetMapping("/api/v1/interviewListRecommend")
+    public Page<InterviewListDto> interviewListRecommendV1(InterviewSearchCondition condition, Pageable pageable) {
+        return interviewRepository.searchInterviewPageRecommend(condition, pageable);
+    }
+
+
+    @GetMapping("/api/v1/interview")
+    public Result<InterviewDetailDto> loadInterviewV1(Long userId, Long interviewId) {
+        return new Result(LOADED_INTERVIEW_SIZE, interviewService.loadInterview(userId, interviewId));
+    }
+
+
     @Data
     static class BookmarkInterviewRequest {
         private Long interviewId;
@@ -128,6 +143,13 @@ public class InterviewController {
     @AllArgsConstructor
     static class CarouselResult<T> {
         private int size;
+        private T data;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T> {
+        private int count;
         private T data;
     }
 
