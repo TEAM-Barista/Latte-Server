@@ -1,10 +1,14 @@
 package com.latte.server.post.service;
 
+import com.latte.server.category.domain.Category;
 import com.latte.server.post.domain.Bookmark;
 import com.latte.server.post.domain.Post;
-import com.latte.server.post.dto.PostListDto;
-import com.latte.server.post.dto.PostSearchCondition;
+import com.latte.server.post.domain.Reply;
+import com.latte.server.post.domain.Tag;
+import com.latte.server.post.dto.*;
 import com.latte.server.post.repository.BookmarkRepository;
+import com.latte.server.post.repository.ReplyLikeRepository;
+import com.latte.server.post.repository.ReplyRepository;
 import com.latte.server.user.domain.User;
 import com.latte.server.post.repository.PostRepository;
 import com.latte.server.user.domain.UserRole;
@@ -20,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -40,6 +47,10 @@ public class PostServiceTest {
     PostRepository postRepository;
     @Autowired
     BookmarkRepository bookmarkRepository;
+    @Autowired
+    ReplyRepository replyRepository;
+    @Autowired
+    ReplyLikeRepository replyLikeRepository;
 
     @Test
     public void 포스트_추가() {
@@ -58,6 +69,27 @@ public class PostServiceTest {
         assertThat(post.getPostTitle()).isEqualTo("test title");
         assertThat(post.getPostCode()).isEqualTo("#stdio.h");
         assertThat(post.getIsQna()).isEqualTo(0);
+        assertThat(post.getIsDeleted()).isEqualTo(0);
+
+    }
+
+    @Test
+    public void QnA_추가() {
+        //given
+        User user = createUser();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+
+        //when
+        Long postId = postService.qna(user.getId(), postContent, postTitle, postCode);
+
+        //then
+        Post post = postRepository.findById(postId).get();
+        assertThat(post.getPostContent()).isEqualTo("test content");
+        assertThat(post.getPostTitle()).isEqualTo("test title");
+        assertThat(post.getPostCode()).isEqualTo("#stdio.h");
+        assertThat(post.getIsQna()).isEqualTo(1);
         assertThat(post.getIsDeleted()).isEqualTo(0);
 
     }
@@ -452,6 +484,326 @@ public class PostServiceTest {
 
         //then
         assertThat(bookmarkRepository.findByPost(post)).isNull();
+    }
+
+    @Test
+    public void 포스트_가져오기() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        LocalDateTime createdDate = post.getCreatedDate();
+        List<Tag> postTags = post.getPostTags();
+        List<String> tagNames = new ArrayList<>();
+        List<Long> tagIds = new ArrayList<>();
+        for (Tag postTag : postTags) {
+            tagIds.add(postTag.getCategory().getId());
+            tagNames.add(postTag.getCategory().getCategory());
+        }
+
+        //when
+        PostDetailDto postDetailDto = postService.loadPost(userId, postId);
+
+        //then
+        assertThat(postDetailDto.getPostId()).isEqualTo(postId);
+        assertThat(postDetailDto.getPostTitle()).isEqualTo(postTitle);
+        assertThat(postDetailDto.getPostContent()).isEqualTo(postContent);
+        assertThat(postDetailDto.getPostCode()).isEqualTo(postCode);
+        assertThat(postDetailDto.getBookmarkCount()).isEqualTo(0);
+        assertThat(postDetailDto.getIsBookmarked()).isEqualTo(0);
+        assertThat(postDetailDto.getCreatedDate()).isEqualTo(createdDate);
+        assertThat(postDetailDto.getReplyCount()).isEqualTo(0);
+        assertThat(postDetailDto.getTagIds()).isEqualTo(tagIds);
+        assertThat(postDetailDto.getTags()).isEqualTo(tagNames);
+    }
+
+    @Test
+    public void 포스트_없음() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+
+        //then
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.loadPost(userId, 0L);
+                })
+                // then
+                .withMessage("[ERROR] No such Post");
+    }
+
+    @Test
+    public void 포스트_유저_없음() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+
+        //then
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.loadPost(0L, postId);
+                })
+                // then
+                .withMessage("[ERROR] No such User");
+    }
+
+    @Test
+    public void 댓글_가져오기_최신순() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+
+        for (int i = 0; i < 100; i++) {
+            Long replyId = postService.reply(post, userId, "test comment" + i);
+        }
+
+        ReplySearchCondition condition = new ReplySearchCondition();
+        condition.setPostId(postId);
+        condition.setUserId(userId);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        Page<ReplyDto> result = postRepository.searchReplyPageRecent(condition, pageRequest);
+
+        //then
+        assertThat(result.getContent().size()).isEqualTo(3);
+        assertThat(result.getContent()).extracting("replyContent").containsExactly("test comment99", "test comment98", "test comment97");
+    }
+
+    @Test
+    public void 댓글_가져오기_오래된순() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+
+        for (int i = 0; i < 100; i++) {
+            Long replyId = postService.reply(post, userId, "test comment" + i);
+        }
+
+        ReplySearchCondition condition = new ReplySearchCondition();
+        condition.setPostId(postId);
+        condition.setUserId(userId);
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        Page<ReplyDto> result = postRepository.searchReplyPageOld(condition, pageRequest);
+
+        //then
+        assertThat(result.getContent().size()).isEqualTo(3);
+        assertThat(result.getContent()).extracting("replyContent").containsExactly("test reply", "test comment0", "test comment1");
+    }
+
+    @Test
+    public void 댓글_달기() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+
+        //when
+        Long replyId = postService.reply(post, userId, replyContent);
+
+        //then
+        Reply reply = replyRepository.findById(replyId).get();
+        assertThat(reply.getPost()).isEqualTo(post);
+        assertThat(reply.getId()).isEqualTo(replyId);
+        assertThat(reply.getUser()).isEqualTo(user);
+        assertThat(reply.getReplyContent()).isEqualTo("test reply");
+    }
+
+    @Test
+    public void 댓글_좋아요() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+        Long replyId = postService.reply(post, userId, replyContent);
+        Reply reply = replyRepository.findById(replyId).get();
+
+        //when
+        Long replyLikeId = postService.createReplyLike(userId, reply);
+
+        //then
+        assertThat(replyLikeRepository.countByReply(reply)).isEqualTo(1);
+        assertThat(replyLikeRepository.findById(replyLikeId)).isNotEmpty();
+    }
+
+    @Test
+    public void 댓글_좋아요_취소() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+        Long replyId = postService.reply(post, userId, replyContent);
+        Reply reply = replyRepository.findById(replyId).get();
+
+        //when
+        postService.createReplyLike(userId, reply);
+        Long replyLikeId = postService.createReplyLike(userId, reply);
+
+        //then
+        assertThat(replyLikeRepository.countByReply(reply)).isEqualTo(0);
+        assertThat(replyLikeRepository.findById(replyLikeId)).isEmpty();
+    }
+
+    @Test
+    public void 댓글_수정() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+        Long replyId = postService.reply(post, userId, replyContent);
+        String updateReplyContent = "updated content";
+
+        //when
+        postService.replyUpdate(replyId, updateReplyContent);
+
+        //then
+        Reply reply = replyRepository.findById(replyId).get();
+        assertThat(reply.getReplyContent()).isEqualTo("updated content");
+    }
+
+    @Test
+    public void 댓글_수정_공백() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+        Long replyId = postService.reply(post, userId, replyContent);
+        String updateReplyContent = "";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.replyUpdate(replyId, updateReplyContent);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+
+    }
+
+    @Test
+    public void 댓글_수정_띄어쓰기() {
+        //given
+        String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+        Long replyId = postService.reply(post, userId, replyContent);
+        String updateReplyContent = " ";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> {
+                    // when
+                    postService.replyUpdate(replyId, updateReplyContent);
+                })
+                // then
+                .withMessage(NOT_EXIST_TEXT);
+    }
+
+    @Test
+    public void 댓글_삭제() {
+        //given
+        User user = createUser();
+        Long userId = user.getId();
+        String postContent = "test content";
+        String postTitle = "test title";
+        String postCode = "#stdio.h";
+        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId).get();
+        String replyContent = "test reply";
+        Long replyId = postService.reply(post, userId, replyContent);
+
+        //when
+        postService.replyDelete(replyId);
+
+        //then
+        Reply reply = replyRepository.findById(replyId).get();
+        assertThat(reply.getIsDeleted()).isEqualTo(1);
+    }
+
+    @Test
+    public void 포스트_태그_수정() {
+        //given
+        Post post = createPost();
+        Category category = createCategory();
+        Long postId = post.getId();
+        Long categoryId = category.getId();
+        List<Long> categoryIds = new ArrayList<>();
+        categoryIds.add(categoryId);
+
+        //when
+        Long findPostId = postService.updatePostTag(postId, categoryIds);
+        Post findPost = postRepository.findById(findPostId).get();
+
+        //then
+        List<Tag> tags = post.getPostTags();
+        assertThat(tags).isEqualTo(findPost.getPostTags());
+    }
+
+    private Post createPost() {
+        User user = User.createTestUser("userA", "test", "test@test.com", "test intro");
+        em.persist(user);
+        Post post = Post.createPost(user, "test content", "test title", "#stdio.h");
+        em.persist(post);
+        return post;
+    }
+
+    private Category createCategory() {
+        Category category = Category.createCategory("test category", "test kind");
+        em.persist(category);
+        return category;
     }
 
     private User createUser() {

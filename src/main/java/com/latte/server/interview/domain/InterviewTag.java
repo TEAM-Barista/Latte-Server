@@ -38,6 +38,11 @@ public class InterviewTag extends BaseTimeEntity {
         this.category = category;
     }
 
+    // == 연관관계 편의 메서드 == //
+    public void changeInterview(Interview interview) {
+        this.interview = interview;
+    }
+
     // == 생성 메서드 == //
     public static InterviewTag createInterviewTag(Interview interview, Category category) {
         return new InterviewTag(interview, category);

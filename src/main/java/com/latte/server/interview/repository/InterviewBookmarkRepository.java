@@ -12,7 +12,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface InterviewBookmarkRepository extends JpaRepository<InterviewBookmark, Long> {
     int countByInterview(Interview interview);
 
+    Long countLongByInterview(Interview interview);
+
     int countByInterviewAndUser(Interview interview, User user);
+
+    Long countLongByInterviewAndUser(Interview interview, User user);
 
     InterviewBookmark findByInterview(Interview interview);
 }

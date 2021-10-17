@@ -6,6 +6,8 @@ import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.post.domain.Post;
+import com.latte.server.post.domain.Reply;
+import com.latte.server.post.domain.Tag;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.domain.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -49,18 +51,25 @@ public class InitDb {
 
             Category category = Category.createCategory("category test", "kind test");
             em.persist(category);
+//
+//            Interview interview = Interview.createInterview(user, "test interview", "test interview title");
+//            em.persist(interview);
+//
+//            InterviewBookmark interviewBookmark = InterviewBookmark.createInterviewBookmark(interview, user);
+//            em.persist(interviewBookmark);
+//
+//            InterviewLike interviewLike = InterviewLike.createInterviewLike(interview, user);
+//            em.persist(interviewLike);
+//
+//            InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
+//            em.persist(interviewTag);
 
-            Interview interview = Interview.createInterview(user, "test interview", "test interview title");
-            em.persist(interview);
+            Tag tag = Tag.createTag(post1, category);
+            em.persist(tag);
 
-            InterviewBookmark interviewBookmark = InterviewBookmark.createInterviewBookmark(interview, user);
-            em.persist(interviewBookmark);
+            Reply reply = Reply.createNewReply(user, post1, "test reply", 0);
+            em.persist(reply);
 
-            InterviewLike interviewLike = InterviewLike.createInterviewLike(interview, user);
-            em.persist(interviewLike);
-
-            InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
-            em.persist(interviewTag);
         }
 
         private Post createPost(User user, String postContent, String postTitle, String postCode) {

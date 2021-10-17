@@ -1,5 +1,6 @@
 package com.latte.server.post.repository;
 
+import com.latte.server.post.domain.Post;
 import com.latte.server.post.service.PostService;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.domain.UserRole;
@@ -25,6 +26,8 @@ public class PostRepositoryTest {
     PostService postService;
     @Autowired
     PostRepository postRepository;
+    @Autowired
+    ReplyRepository replyRepository;
 
     @Test
     public void 댓글_갯수_카운트() {
@@ -34,9 +37,10 @@ public class PostRepositoryTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Post findPost = postRepository.findById(postId).get();
 
         //when
-        int count = postRepository.countReplies(postId);
+        Long count = replyRepository.countByPostAndIsDeleted(findPost, 0);
 
         //then
         Assertions.assertThat(count).isEqualTo(0);

@@ -1,12 +1,11 @@
 package com.latte.server.post.repository;
 
 import com.latte.server.post.domain.*;
-import com.latte.server.post.dto.PostListDto;
-import com.latte.server.post.dto.PostSearchCondition;
-import com.latte.server.post.dto.QPostListDto;
+import com.latte.server.post.dto.*;
 import com.latte.server.user.domain.QUser;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -24,8 +23,14 @@ import java.util.List;
 import static com.latte.server.post.domain.QBookmark.*;
 import static com.latte.server.post.domain.QPost.*;
 import static com.latte.server.post.domain.QReply.reply;
+import static com.latte.server.post.domain.QReplyLike.*;
 import static com.latte.server.user.domain.QUser.*;
 import static com.querydsl.core.types.ExpressionUtils.count;
+
+
+/**
+ * Created by Donggun on 2021-08-26
+ */
 
 public class PostRepositoryImpl implements PostRepositoryCustom {
 
@@ -181,6 +186,114 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+    @Override
+    public Page<ReplyDto> searchReplyPageRecent(ReplySearchCondition condition, Pageable pageable) {
+        List<ReplyDto> content = queryFactory
+                .select(new QReplyDto(
+                        post,
+                        user,
+                        reply,
+                        count(replyLike),
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(count(replyLike))
+                                        .from(replyLike)
+                                        .where(replyLike.user.id.eq(condition.getUserId()))
+                                , "isLiked"
+                        )
+                ))
+                .from(reply)
+                .leftJoin(post)
+                .on(reply.post.id.eq(post.id)).fetchJoin()
+                .leftJoin(user)
+                .on(reply.user.id.eq(user.id)).fetchJoin()
+                .leftJoin(replyLike)
+                .on(replyLike.reply.id.eq(reply.id)).fetchJoin()
+                .where(
+                        reply.isDeleted.eq(NOT_DELETED),
+                        replyContentKeyword(condition.getReplyContentKeyword()),
+                        replyUser(condition.getReplyUserName()),
+                        dateAfter(condition.getDateAfter())
+                )
+                .groupBy(reply.id)
+                .orderBy(reply.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // count 쿼리
+        JPAQuery<Reply> countQuery = queryFactory
+                .selectFrom(reply)
+                .leftJoin(post)
+                .on(reply.post.id.eq(post.id)).fetchJoin()
+                .where(
+                        reply.isDeleted.eq(NOT_DELETED),
+                        replyContentKeyword(condition.getReplyContentKeyword()),
+                        replyUser(condition.getReplyUserName()),
+                        dateAfter(condition.getDateAfter())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+    @Override
+    public Page<ReplyDto> searchReplyPageOld(ReplySearchCondition condition, Pageable pageable) {
+        List<ReplyDto> content = queryFactory
+                .select(new QReplyDto(
+                        post,
+                        user,
+                        reply,
+                        count(replyLike),
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(count(replyLike))
+                                        .from(replyLike)
+                                        .where(replyLike.user.id.eq(condition.getUserId()))
+                                , "isLiked"
+                        )
+                ))
+                .from(reply)
+                .leftJoin(post)
+                .on(reply.post.id.eq(post.id)).fetchJoin()
+                .leftJoin(user)
+                .on(reply.user.id.eq(user.id)).fetchJoin()
+                .leftJoin(replyLike)
+                .on(replyLike.reply.id.eq(reply.id)).fetchJoin()
+                .where(
+                        reply.isDeleted.eq(NOT_DELETED),
+                        replyContentKeyword(condition.getReplyContentKeyword()),
+                        replyUser(condition.getReplyUserName()),
+                        dateAfter(condition.getDateAfter())
+                )
+                .groupBy(reply.id)
+                .orderBy(reply.id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // count 쿼리
+        JPAQuery<Reply> countQuery = queryFactory
+                .selectFrom(reply)
+                .leftJoin(post)
+                .on(reply.post.id.eq(post.id)).fetchJoin()
+                .where(
+                        reply.isDeleted.eq(NOT_DELETED),
+                        replyContentKeyword(condition.getReplyContentKeyword()),
+                        replyUser(condition.getReplyUserName()),
+                        dateAfter(condition.getDateAfter())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+    private BooleanExpression replyUser(String replyUserName) {
+        return replyUserName != null ? reply.user.userName.contains(replyUserName) : null;
+    }
+
+    private BooleanExpression replyContentKeyword(String keyword) {
+        return keyword != null ? reply.replyContent.contains(keyword) : null;
     }
 
     private BooleanExpression isQna(Integer validation) {

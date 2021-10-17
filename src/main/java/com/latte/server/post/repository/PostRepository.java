@@ -10,8 +10,4 @@ import org.springframework.data.repository.query.Param;
  */
 
 public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
-
-    @Query("select count(r) from Reply r join r.post p where p.id = :postId")
-    int countReplies(@Param("postId") Long postId);
-
 }
