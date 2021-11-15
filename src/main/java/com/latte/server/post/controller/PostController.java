@@ -1,9 +1,13 @@
 package com.latte.server.post.controller;
 
+import com.latte.server.interview.dto.request.LoadInterviewRequest;
+import com.latte.server.interview.dto.response.LoadInterviewResponse;
 import com.latte.server.post.domain.Post;
 import com.latte.server.post.domain.Reply;
 import com.latte.server.post.domain.Tag;
 import com.latte.server.post.dto.*;
+import com.latte.server.post.dto.Request.*;
+import com.latte.server.post.dto.Response.*;
 import com.latte.server.post.repository.PostRepository;
 import com.latte.server.post.repository.ReplyRepository;
 import com.latte.server.post.repository.TagRepository;
@@ -67,8 +71,8 @@ public class PostController {
     }
 
     @GetMapping("/api/v1/post")
-    public Result<PostDetailDto> loadPostV1(Long userId, Long postId) {
-        return new Result(LOADED_POST_SIZE, postService.loadPost(userId, postId));
+    public LoadPostResponse<PostDetailDto> loadPostV1(@RequestBody @Valid LoadPostRequest request) {
+        return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(request.getUserId(), request.getPostId()));
     }
 
     @PostMapping("/api/v1/post")
@@ -145,118 +149,9 @@ public class PostController {
 
     @PutMapping("/api/v1/updatePost")
     public UpdatePostResponse updatePostV1(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
-        postService.update(postId, request.postContent, request.postTitle, request.postCode);
+        postService.update(postId, request.getPostContent(), request.getPostTitle(), request.getPostCode());
         postService.updatePostTag(postId, request.getTagIds());
         return new UpdatePostResponse(postId);
     }
 
-    @Data
-    static class UpdatePostRequest {
-        private String postTitle;
-        private String postContent;
-        private String postCode;
-        private List<Long> tagIds;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class UpdatePostResponse {
-        private Long postId;
-    }
-
-    @Data
-    static class DeletePostRequest {
-        private Long postId;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class DeletePostResponse {
-        private Long postId;
-    }
-
-    @Data
-    static class UpdateReplyRequest {
-        private String replyContent;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class UpdateReplyResponse {
-        private Long replyId;
-    }
-
-    @Data
-    static class DeleteReplyRequest {
-        private Long replyId;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class DeleteReplyResponse {
-        private Long replyId;
-    }
-
-    @Data
-    static class BookmarkPostRequest {
-        private Long postId;
-        private Long userId;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class BookmarkPostResponse {
-        private Long postId;
-    }
-
-    @Data
-    static class ReplyLikeRequest {
-        private Long replyId;
-        private Long userId;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class ReplyLikeResponse {
-        private Long replyId;
-        private Long replyLikeId;
-    }
-
-    @Data
-    static class CreatePostRequest {
-        private Long userId;
-        private String postTitle;
-        private String postContent;
-        private String postCode;
-        private List<Long> postTags;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class CreatePostResponse {
-        private Long postId;
-    }
-
-    @Data
-    static class CreateReplyRequest {
-        private Long userId;
-        private Long postId;
-        private String postContent;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class CreateReplyResponse {
-        private Long userId;
-        private Long postId;
-        private Long replyId;
-    }
-
-    // data로 반환
-    @Data
-    @AllArgsConstructor
-    static class Result<T> {
-        private int count;
-        private T data;
-    }
 }
