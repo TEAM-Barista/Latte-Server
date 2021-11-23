@@ -8,18 +8,18 @@ import com.latte.server.interview.domain.InterviewLike;
 import com.latte.server.interview.domain.InterviewTag;
 import com.latte.server.interview.dto.CarouselDto;
 import com.latte.server.interview.dto.InterviewDetailDto;
+import com.latte.server.interview.dto.InterviewListDto;
+import com.latte.server.interview.dto.InterviewSearchCondition;
 import com.latte.server.interview.repository.*;
-import com.latte.server.post.domain.Post;
 import com.latte.server.post.domain.SeniorRequest;
-import com.latte.server.post.domain.Tag;
-import com.latte.server.post.dto.PostDetailDto;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.util.StringUtils.hasText;
@@ -33,7 +33,7 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 public class InterviewService {
     private static final String NOT_EXIST_USER = "[ERROR] No such User";
-    private static final String NOT_EXIST_INTERIVEW = "[ERROR] No such Interview";
+    private static final String NOT_EXIST_INTERVIEW = "[ERROR] No such Interview";
     private static final String NOT_EXIST_CATEGORY = "[ERROR] No such Category";
     private static final String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
     private static final Long INTERVIEW_LIKE_DELETED = 0L;
@@ -47,8 +47,8 @@ public class InterviewService {
     private final CategoryRepository categoryRepository;
     private final SeniorRequestRepository seniorRequestRepository;
 
-    public CarouselDto loadCarousel(Long userId) {
-        User user = userRepository.findById(userId)
+    public CarouselDto loadCarousel(String email) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
 
         Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
@@ -107,7 +107,7 @@ public class InterviewService {
     public Long updateInterviewTag(Long interviewId, List<Long> categoryIds) {
 
         Interview interview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERIVEW));
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
 
         interview.clearInterviewTag();
 
@@ -149,12 +149,11 @@ public class InterviewService {
         }
     }
 
-    public InterviewDetailDto loadInterview(Long userId, Long interviewId) {
-
-        Interview findInterview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERIVEW));
-        User findUser = userRepository.findById(userId)
+    public InterviewDetailDto loadInterview(String email, Long interviewId) {
+        User findUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+        Interview findInterview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
 
         Long isBookmarked = interviewBookmarkRepository.countLongByInterviewAndUser(findInterview, findUser);
         Long bookmarkCount = interviewBookmarkRepository.countLongByInterview(findInterview);
@@ -166,4 +165,47 @@ public class InterviewService {
     }
 
 
+    public Long bookmarkInterview(Long interviewId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Interview findInterview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+
+        Long interviewBookmarkId = createInterviewBookmark(user.getId(), findInterview);
+
+        return interviewBookmarkId;
+    }
+
+    public Long likeInterview(Long interviewId, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Interview findInterview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+
+        Long interviewLikeId = createInterviewLike(user.getId(), findInterview);
+
+        return interviewLikeId;
+    }
+
+    public Long requestSenior(Long interviewId, String title, String content, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Interview findInterview = interviewRepository.findById(interviewId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+
+        Long seniorRequestId = createSeniorRequest(user.getId(), findInterview, title, content);
+
+        return seniorRequestId;
+    }
+
+    public Page<InterviewListDto> searchRepositoryInterviewPageRecent(InterviewSearchCondition condition, Pageable pageable) {
+        return interviewRepository.searchInterviewPageRecent(condition, pageable);
+    }
+
+    public Page<InterviewListDto> searchRepositoryInterviewPageRecommend(InterviewSearchCondition condition, Pageable pageable) {
+        return interviewRepository.searchInterviewPageRecommend(condition, pageable);
+    }
 }

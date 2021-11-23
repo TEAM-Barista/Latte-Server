@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class LoadInterviewRequest {
-    private Long userId;
     private Long interviewId;
 }

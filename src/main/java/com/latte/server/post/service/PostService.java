@@ -2,21 +2,18 @@ package com.latte.server.post.service;
 
 import com.latte.server.category.domain.Category;
 import com.latte.server.category.repository.CategoryRepository;
-import com.latte.server.interview.domain.Interview;
-import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.post.domain.*;
-import com.latte.server.post.dto.PostDetailDto;
-import com.latte.server.post.dto.PostListDto;
+import com.latte.server.post.dto.*;
+import com.latte.server.post.dto.Response.CreatePostResponse;
 import com.latte.server.post.repository.*;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -35,6 +32,7 @@ public class PostService {
     private static final String NOT_EXIST_REPLY = "[ERROR] No such Reply";
     private static final String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
     private static final String NOT_EXIST_CATEGORY = "[ERROR] No such Category";
+    private static final String NOT_EXIST_TAG = "[ERROR] No such tag";
     private static final Long POST_BOOKMARK_DELETED = 0L;
     private static final Long REPLY_LIKE_DELETED = 0L;
     private static final int POST_REPLY_NOT_DELETED = 0;
@@ -116,13 +114,12 @@ public class PostService {
         return POST_BOOKMARK_DELETED;
     }
 
-    public PostDetailDto loadPost(Long userId, Long postId) {
+    public PostDetailDto loadPost(String email, Long postId) {
+        User findUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
 
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
 
         Long replyCount = replyRepository.countByPostAndIsDeleted(findPost, POST_REPLY_NOT_DELETED);
         Long bookmarkCount = bookmarkRepository.countByPost(findPost);
@@ -193,5 +190,97 @@ public class PostService {
             tagRepository.save(tag);
         }
         return postId;
+    }
+
+    public Page<PostListDto> searchRepositoryPostPage(PostSearchCondition condition, Pageable pageable) {
+        return postRepository.searchPostPage(condition, pageable);
+    }
+
+    public Page<PostListDto> searchRepositoryPostListPopular(PostSearchCondition condition, Pageable pageable) {
+        return postRepository.searchPostPagePopular(condition, pageable);
+    }
+
+    public Page<PostListDto> searchRepositoryPostListRecent(PostSearchCondition condition, Pageable pageable) {
+        return postRepository.searchPostPageRecent(condition, pageable);
+    }
+
+    public Page<ReplyDto> searchRepositoryReplyPageRecent(ReplySearchCondition condition, Pageable pageable) {
+        return postRepository.searchReplyPageRecent(condition, pageable);
+    }
+
+    public Page<ReplyDto> searchRepositoryReplyPageOld(ReplySearchCondition condition, Pageable pageable) {
+        return postRepository.searchReplyPageOld(condition, pageable);
+    }
+
+    public Long bookmarkPost(String email, Long postId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Post findPost = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
+        Long bookmarkedPostId = createPostBookmark(user.getId(), findPost);
+
+        return bookmarkedPostId;
+    }
+
+    public Long writePost(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Long postId = post(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
+        List<Long> postTagList = postTags;
+        for (Long postTag : postTagList) {
+            Tag tag = tagRepository.findById(postTag)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
+            post.addPostTag(tag);
+        }
+
+        return postId;
+    }
+
+    public Long writeQna(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Long postId = qna(user.getId(), postContent, postTitle, postCode);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
+        List<Long> postTagList = postTags;
+        for (Long postTag : postTagList) {
+            Tag tag = tagRepository.findById(postTag)
+                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
+            post.addPostTag(tag);
+        }
+
+        return postId;
+    }
+
+    public Long writeReply(String email, Long postId, String replyContent) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Post findPost = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+
+        Long replyId = reply(findPost, user.getId(), replyContent);
+
+        return replyId;
+    }
+
+    public Long likeReply(String email, Long replyId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+
+        Reply reply = replyRepository.findById(replyId)
+                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_REPLY));
+
+        Long replyLikeId = createReplyLike(user.getId(), reply);
+
+        return replyLikeId;
     }
 }

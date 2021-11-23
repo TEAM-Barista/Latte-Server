@@ -6,5 +6,4 @@ import lombok.Data;
 @Data
 public class LikeInterviewRequest {
     private Long interviewId;
-    private Long userId;
 }

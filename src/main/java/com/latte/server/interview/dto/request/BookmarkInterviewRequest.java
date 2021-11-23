@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class BookmarkInterviewRequest {
     private Long interviewId;
-    private Long userId;
 }

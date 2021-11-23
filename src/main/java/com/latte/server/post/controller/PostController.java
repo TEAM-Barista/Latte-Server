@@ -1,5 +1,6 @@
 package com.latte.server.post.controller;
 
+import com.latte.server.interview.dto.InterviewListDto;
 import com.latte.server.interview.dto.request.LoadInterviewRequest;
 import com.latte.server.interview.dto.response.LoadInterviewResponse;
 import com.latte.server.post.domain.Post;
@@ -17,6 +18,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,108 +27,83 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class PostController {
-    private static final String NOT_EXIST_POST = "[ERROR] No such Post";
-    private static final String NOT_EXIST_TAG = "[ERROR] No such tag";
-    private static final String NOT_EXIST_REPLY = "[ERROR] No such reply";
     private static final int LOADED_POST_SIZE = 1;
-
-    private final PostRepository postRepository;
-    private final TagRepository tagRepository;
-    private final ReplyRepository replyRepository;
 
     private final PostService postService;
 
     @GetMapping("/api/v1/postList")
     public Page<PostListDto> postListV1(PostSearchCondition condition, Pageable pageable) {
-        return postRepository.searchPostPage(condition, pageable);
+        Page<PostListDto> result = postService.searchRepositoryPostPage(condition, pageable);
+
+        return result;
     }
 
     @GetMapping("/api/v1/postListPopular")
     public Page<PostListDto> postListPopularV1(PostSearchCondition condition, Pageable pageable) {
-        return postRepository.searchPostPagePopular(condition, pageable);
+        Page<PostListDto> result = postService.searchRepositoryPostListPopular(condition, pageable);
+
+        return result;
     }
 
     @GetMapping("/api/v1/postListRecent")
     public Page<PostListDto> postListRecentV1(PostSearchCondition condition, Pageable pageable) {
-        return postRepository.searchPostPageRecent(condition, pageable);
+        Page<PostListDto> result = postService.searchRepositoryPostListRecent(condition, pageable);
+
+        return result;
     }
 
     @GetMapping("/api/v1/replyListRecent")
     public Page<ReplyDto> replyListRecentV1(ReplySearchCondition condition, Pageable pageable) {
-        return postRepository.searchReplyPageRecent(condition, pageable);
+        Page<ReplyDto> result = postService.searchRepositoryReplyPageRecent(condition, pageable);
+
+        return result;
     }
 
     @GetMapping("/api/v1/replyListOld")
     public Page<ReplyDto> replyListOldV1(ReplySearchCondition condition, Pageable pageable) {
-        return postRepository.searchReplyPageOld(condition, pageable);
+        Page<ReplyDto> result = postService.searchRepositoryReplyPageOld(condition, pageable);
+
+        return result;
     }
 
     @PostMapping("/api/v1/postBookmark")
-    public BookmarkPostResponse postBookmarkV1(@RequestBody @Valid BookmarkPostRequest request) {
-        Post findPost = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+    public BookmarkPostResponse postBookmarkV1(@RequestBody @Valid BookmarkPostRequest request, @AuthenticationPrincipal String email) {
+        Long bookmarkedPostId = postService.bookmarkPost(email, request.getPostId());
 
-        Long bookmarkedPostId = postService.createPostBookmark(request.getUserId(), findPost);
         return new BookmarkPostResponse(bookmarkedPostId);
     }
 
     @GetMapping("/api/v1/post")
-    public LoadPostResponse<PostDetailDto> loadPostV1(@RequestBody @Valid LoadPostRequest request) {
-        return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(request.getUserId(), request.getPostId()));
+    public LoadPostResponse<PostDetailDto> loadPostV1(@RequestBody @Valid LoadPostRequest request, @AuthenticationPrincipal String email) {
+        return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(email, request.getPostId()));
     }
 
     @PostMapping("/api/v1/post")
-    public CreatePostResponse postV1(@RequestBody @Valid CreatePostRequest request) {
-
-        Long postId = postService.post(request.getUserId(), request.getPostContent(), request.getPostTitle(), request.getPostCode());
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
-
-        List<Long> postTags = request.getPostTags();
-        for (Long postTag : postTags) {
-            Tag tag = tagRepository.findById(postTag)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
-            post.addPostTag(tag);
-        }
+    public CreatePostResponse postV1(@RequestBody @Valid CreatePostRequest request, @AuthenticationPrincipal String email) {
+        Long postId = postService.writePost(email, request.getPostContent(), request.getPostTitle(), request.getPostCode(), request.getPostTags());
 
         return new CreatePostResponse(postId);
     }
 
     @PostMapping("/api/v1/qna")
-    public CreatePostResponse qnaV1(@RequestBody @Valid CreatePostRequest request) {
-
-        Long postId = postService.qna(request.getUserId(), request.getPostContent(), request.getPostTitle(), request.getPostCode());
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
-
-        List<Long> postTags = request.getPostTags();
-        for (Long postTag : postTags) {
-            Tag tag = tagRepository.findById(postTag)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
-            post.addPostTag(tag);
-        }
+    public CreatePostResponse qnaV1(@RequestBody @Valid CreatePostRequest request, @AuthenticationPrincipal String email) {
+        Long postId = postService.writeQna(email, request.getPostContent(), request.getPostTitle(), request.getPostCode(), request.getPostTags());
 
         return new CreatePostResponse(postId);
     }
 
     @PostMapping("/api/v1/reply")
-    public CreateReplyResponse replyV1(@RequestBody @Valid CreateReplyRequest request) {
+    public CreateReplyResponse replyV1(@RequestBody @Valid CreateReplyRequest request, @AuthenticationPrincipal String email) {
+        Long replyId = postService.writeReply(email, request.getPostId(), request.getReplyContent());
 
-        Post findPost = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
-
-        Long replyId = postService.reply(findPost, request.getUserId(), request.getPostContent());
-
-        return new CreateReplyResponse(request.getUserId(), request.getPostId(), replyId);
+        return new CreateReplyResponse(request.getPostId(), replyId);
     }
 
     @PostMapping("/api/v1/replyLike")
-    public ReplyLikeResponse replyLikeV1(@RequestBody @Valid ReplyLikeRequest request) {
-        Reply reply = replyRepository.findById(request.getReplyId())
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_REPLY));
-        Long replyLikeId = postService.createReplyLike(request.getUserId(), reply);
+    public ReplyLikeResponse replyLikeV1(@RequestBody @Valid ReplyLikeRequest request, @AuthenticationPrincipal String email) {
+        Long replyLikeId = postService.likeReply(email, request.getReplyId());
 
-        return new ReplyLikeResponse(reply.getId(), replyLikeId);
+        return new ReplyLikeResponse(request.getReplyId(), replyLikeId);
     }
 
     @PostMapping("/api/v1/deleteReply")

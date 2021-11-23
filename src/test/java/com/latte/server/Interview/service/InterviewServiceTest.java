@@ -281,10 +281,10 @@ public class InterviewServiceTest {
     public void 인터뷰_가져오기() {
         //given
         User user = createUser();
-        Long userId = user.getId();
+        String email = user.getEmail();
         String interviewContent = "test content";
         String interviewTitle = "test title";
-        Long interviewId = interviewService.createInterview(userId, interviewContent, interviewTitle);
+        Long interviewId = interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
         Interview interview = interviewRepository.findById(interviewId).get();
         LocalDateTime createdDate = interview.getCreatedDate();
         List<InterviewTag> interviewTags = interview.getInterviewTags();
@@ -296,7 +296,7 @@ public class InterviewServiceTest {
         }
 
         //when
-        InterviewDetailDto interviewDetailDto = interviewService.loadInterview(userId, interviewId);
+        InterviewDetailDto interviewDetailDto = interviewService.loadInterview(email, interviewId);
 
         //then
         assertThat(interviewDetailDto.getInterviewId()).isEqualTo(interviewId);

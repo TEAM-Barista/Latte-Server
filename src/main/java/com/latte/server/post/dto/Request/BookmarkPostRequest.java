@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class BookmarkPostRequest {
     private Long postId;
-    private Long userId;
 }

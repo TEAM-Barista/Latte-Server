@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class LoadPostRequest {
-    private Long userId;
     private Long postId;
 }

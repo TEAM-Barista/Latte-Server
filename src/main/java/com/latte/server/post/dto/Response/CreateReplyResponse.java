@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CreateReplyResponse {
-    private Long userId;
     private Long postId;
     private Long replyId;
 }

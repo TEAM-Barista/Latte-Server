@@ -506,7 +506,7 @@ public class PostServiceTest {
         }
 
         //when
-        PostDetailDto postDetailDto = postService.loadPost(userId, postId);
+        PostDetailDto postDetailDto = postService.loadPost(user.getEmail(), postId);
 
         //then
         assertThat(postDetailDto.getPostId()).isEqualTo(postId);
@@ -531,7 +531,7 @@ public class PostServiceTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
                     // when
-                    postService.loadPost(userId, 0L);
+                    postService.loadPost(user.getEmail(), 0L);
                 })
                 // then
                 .withMessage("[ERROR] No such Post");
@@ -542,6 +542,7 @@ public class PostServiceTest {
         //given
         User user = createUser();
         Long userId = user.getId();
+        user.setEmail("test@google.com");
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
@@ -551,7 +552,7 @@ public class PostServiceTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> {
                     // when
-                    postService.loadPost(0L, postId);
+                    postService.loadPost("no user", postId);
                 })
                 // then
                 .withMessage("[ERROR] No such User");
