@@ -75,7 +75,7 @@ public class InterviewServiceTest {
         em.clear();
 
         //when
-        Long interviewLike = interviewService.createInterviewLike(user.getId(), interview);
+        Long interviewLike = interviewService.createInterviewLike(user, interview);
 
         //then
         InterviewLike findInterviewLike = interviewLikeRepository.findById(interviewLike).get();
@@ -93,10 +93,10 @@ public class InterviewServiceTest {
         em.flush();
         em.clear();
 
-        interviewService.createInterviewLike(user.getId(), interview);
+        interviewService.createInterviewLike(user, interview);
 
         //when
-        Long interviewLike = interviewService.createInterviewLike(user.getId(), interview);
+        Long interviewLike = interviewService.createInterviewLike(user, interview);
 
         //then
         assertThat(interviewLike).isEqualTo(0L);
@@ -113,7 +113,7 @@ public class InterviewServiceTest {
         em.clear();
 
         //when
-        Long interviewBookmark = interviewService.createInterviewBookmark(user.getId(), interview);
+        Long interviewBookmark = interviewService.createInterviewBookmark(user, interview);
 
         //then
         InterviewBookmark findInterviewBookmark = interviewBookMarkRepository.findById(interviewBookmark).get();
@@ -131,10 +131,10 @@ public class InterviewServiceTest {
         em.flush();
         em.clear();
 
-        interviewService.createInterviewBookmark(user.getId(), interview);
+        interviewService.createInterviewBookmark(user, interview);
 
         //when
-        Long interviewLike = interviewService.createInterviewBookmark(user.getId(), interview);
+        Long interviewLike = interviewService.createInterviewBookmark(user, interview);
 
         //then
         assertThat(interviewLike).isEqualTo(0L);
@@ -150,7 +150,7 @@ public class InterviewServiceTest {
         String interviewTitle = "test title";
 
         //when
-        Long id = interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
+        Long id = interviewService.createInterview(user, interviewContent, interviewTitle);
 
         //then
         Interview interview = interviewRepository.findById(id).get();
@@ -209,7 +209,7 @@ public class InterviewServiceTest {
         String interviewContent = "test content";
         String interviewTitle = "test title";
         for (int i = 0; i < 100; i++) {
-            interviewService.createInterview(user.getId(), interviewContent + i, interviewTitle + i);
+            interviewService.createInterview(user, interviewContent + i, interviewTitle + i);
         }
         InterviewSearchCondition condition = new InterviewSearchCondition();
         condition.setUserId(userId);
@@ -231,7 +231,7 @@ public class InterviewServiceTest {
         Long userId = user.getId();
         String interviewContent = "test content";
         String interviewTitle = "test title";
-        Long findInterviewId = interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
+        Long findInterviewId = interviewService.createInterview(user, interviewContent, interviewTitle);
 
         Interview findInterview = interviewRepository.findById(findInterviewId).get();
 
@@ -267,7 +267,7 @@ public class InterviewServiceTest {
         Interview interview = Interview.createInterview(user, "test content", "test title");
 
         //when
-        Long seniorRequestId = interviewService.createSeniorRequest(user.getId(), interview, "test title", "test content");
+        Long seniorRequestId = interviewService.createSeniorRequest(user, interview, "test title", "test content");
 
         //then
         SeniorRequest findSeniorRequest = seniorRequestRepository.findById(seniorRequestId).get();
@@ -284,7 +284,7 @@ public class InterviewServiceTest {
         String email = user.getEmail();
         String interviewContent = "test content";
         String interviewTitle = "test title";
-        Long interviewId = interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
+        Long interviewId = interviewService.createInterview(user, interviewContent, interviewTitle);
         Interview interview = interviewRepository.findById(interviewId).get();
         LocalDateTime createdDate = interview.getCreatedDate();
         List<InterviewTag> interviewTags = interview.getInterviewTags();

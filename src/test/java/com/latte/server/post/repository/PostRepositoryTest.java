@@ -36,7 +36,7 @@ public class PostRepositoryTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post findPost = postRepository.findById(postId).get();
 
         //when

@@ -79,7 +79,7 @@ public class InterviewLikeRepositoryTest {
         Interview interview = Interview.createInterview(user, "test content", "test title");
         em.persist(interview);
 
-        interviewService.createInterviewLike(user.getId(), interview);
+        interviewService.createInterviewLike(user, interview);
 
         em.flush();
         em.clear();

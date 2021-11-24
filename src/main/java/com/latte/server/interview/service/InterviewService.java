@@ -2,6 +2,10 @@ package com.latte.server.interview.service;
 
 import com.latte.server.category.domain.Category;
 import com.latte.server.category.repository.CategoryRepository;
+import com.latte.server.common.exception.custom.NotFoundCategoryException;
+import com.latte.server.common.exception.custom.NotFoundInterviewException;
+import com.latte.server.common.exception.custom.NotFoundTextException;
+import com.latte.server.common.exception.custom.NotFoundUserException;
 import com.latte.server.interview.domain.Interview;
 import com.latte.server.interview.domain.InterviewBookmark;
 import com.latte.server.interview.domain.InterviewLike;
@@ -32,10 +36,6 @@ import static org.springframework.util.StringUtils.hasText;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class InterviewService {
-    private static final String NOT_EXIST_USER = "[ERROR] No such User";
-    private static final String NOT_EXIST_INTERVIEW = "[ERROR] No such Interview";
-    private static final String NOT_EXIST_CATEGORY = "[ERROR] No such Category";
-    private static final String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
     private static final Long INTERVIEW_LIKE_DELETED = 0L;
     private static final Long INTERVIEW_BOOKMARK_DELETED = 0L;
 
@@ -49,7 +49,7 @@ public class InterviewService {
 
     public CarouselDto loadCarousel(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
         int interviewLikeCount = interviewLikeRepository.countByInterview(interviewByCreatedDate);
@@ -62,10 +62,7 @@ public class InterviewService {
     }
 
     @Transactional
-    public Long createInterview(Long userId, String interviewContent, String interviewTitle) {
-        // 엔티티 조회
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
+    public Long createInterview(User user, String interviewContent, String interviewTitle) {
         Interview interview = Interview.createInterview(user, interviewContent, interviewTitle);
 
         interviewRepository.save(interview);
@@ -74,10 +71,7 @@ public class InterviewService {
     }
 
     @Transactional
-    public Long createInterviewLike(Long userId, Interview interview) {
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
+    public Long createInterviewLike(User user, Interview interview) {
         if (interviewLikeRepository.findByInterview(interview) == null) {
             InterviewLike interviewLike = InterviewLike.createInterviewLike(interview, user);
             interviewLikeRepository.save(interviewLike);
@@ -89,10 +83,7 @@ public class InterviewService {
     }
 
     @Transactional
-    public Long createInterviewBookmark(Long userId, Interview interview) {
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
+    public Long createInterviewBookmark(User user, Interview interview) {
         if (interviewBookmarkRepository.findByInterview(interview) == null) {
             InterviewBookmark interviewBookmark = InterviewBookmark.createInterviewBookmark(interview, user);
             interviewBookmarkRepository.save(interviewBookmark);
@@ -107,13 +98,13 @@ public class InterviewService {
     public Long updateInterviewTag(Long interviewId, List<Long> categoryIds) {
 
         Interview interview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+                .orElseThrow(NotFoundInterviewException::new);
 
         interview.clearInterviewTag();
 
         for (Long categoryId : categoryIds) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_CATEGORY));
+                    .orElseThrow(NotFoundCategoryException::new);
 
             InterviewTag interviewTag = InterviewTag.createInterviewTag(interview, category);
             interview.addInterviewTag(interviewTag);
@@ -131,9 +122,7 @@ public class InterviewService {
     }
 
     @Transactional
-    public Long createSeniorRequest(Long userId, Interview interview, String title, String content) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+    public Long createSeniorRequest(User user, Interview interview, String title, String content) {
         valifyText(content, title);
 
         SeniorRequest seniorRequest = SeniorRequest.createSeniorRequest(user, interview, title, content);
@@ -145,15 +134,15 @@ public class InterviewService {
 
     private void valifyText(String content, String title) {
         if (!(hasText(title) && hasText(content))) {
-            throw new IllegalArgumentException(NOT_EXIST_TEXT);
+            throw new NotFoundTextException();
         }
     }
 
     public InterviewDetailDto loadInterview(String email, Long interviewId) {
         User findUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
         Interview findInterview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+                .orElseThrow(NotFoundInterviewException::new);
 
         Long isBookmarked = interviewBookmarkRepository.countLongByInterviewAndUser(findInterview, findUser);
         Long bookmarkCount = interviewBookmarkRepository.countLongByInterview(findInterview);
@@ -167,36 +156,36 @@ public class InterviewService {
 
     public Long bookmarkInterview(Long interviewId, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Interview findInterview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+                .orElseThrow(NotFoundInterviewException::new);
 
-        Long interviewBookmarkId = createInterviewBookmark(user.getId(), findInterview);
+        Long interviewBookmarkId = createInterviewBookmark(user, findInterview);
 
         return interviewBookmarkId;
     }
 
     public Long likeInterview(Long interviewId, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Interview findInterview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+                .orElseThrow(NotFoundInterviewException::new);
 
-        Long interviewLikeId = createInterviewLike(user.getId(), findInterview);
+        Long interviewLikeId = createInterviewLike(user, findInterview);
 
         return interviewLikeId;
     }
 
     public Long requestSenior(Long interviewId, String title, String content, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Interview findInterview = interviewRepository.findById(interviewId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_INTERVIEW));
+                .orElseThrow(NotFoundInterviewException::new);
 
-        Long seniorRequestId = createSeniorRequest(user.getId(), findInterview, title, content);
+        Long seniorRequestId = createSeniorRequest(user, findInterview, title, content);
 
         return seniorRequestId;
     }

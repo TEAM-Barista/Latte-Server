@@ -16,7 +16,13 @@ public enum ErrorCode {
     NOT_FOUND_PASSWORD(401, "Password is not found, Please check your Password.", HttpStatus.UNAUTHORIZED),
     NOT_FOUND_CATEGORY(404, "Cannot find category, Please check category id.", HttpStatus.NOT_FOUND),
     NOT_FOUND_USER_CATEGORY(404, "Cannot find user category, Please check your path variable.", HttpStatus.NOT_FOUND),
-    FCM_NOT_ALLOWED(500, "Firebase Error. Please contact Latte Server Team", HttpStatus.INTERNAL_SERVER_ERROR),;
+    FCM_NOT_ALLOWED(500, "Firebase Error. Please contact Latte Server Team", HttpStatus.INTERNAL_SERVER_ERROR),
+    NOT_FOUND_USER(404, "[ERROR] No such User", HttpStatus.NOT_FOUND),
+    NOT_FOUND_INTERVIEW(404, "[ERROR] No such Interview", HttpStatus.NOT_FOUND),
+    NOT_FOUND_TEXT(404, "[ERROR] Do not contain text", HttpStatus.NOT_FOUND),
+    NOT_FOUND_POST(404, "[ERROR] No such Post", HttpStatus.NOT_FOUND),
+    NOT_FOUND_REPLY(404, "[ERROR] No such Reply", HttpStatus.NOT_FOUND),
+    NOT_FOUND_TAG(404, "[ERROR] No such tag", HttpStatus.NOT_FOUND),;
 
     private final int code;
     private final String message;

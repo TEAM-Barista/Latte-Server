@@ -79,6 +79,48 @@ public class CustomExceptionHandler {
         return new ResponseEntity(errorBody, errorBody.getHttpStatus());
     }
 
+    @ExceptionHandler(NotFoundUserException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundUserException(NotFoundUserException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
+    @ExceptionHandler(NotFoundInterviewException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundInterviewException(NotFoundInterviewException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
+    @ExceptionHandler(NotFoundTextException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundTextException(NotFoundTextException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
+    @ExceptionHandler(NotFoundPostException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundPostException(NotFoundPostException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
+    @ExceptionHandler(NotFoundReplyException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundReplyException(NotFoundReplyException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
+    @ExceptionHandler(NotFoundTagException.class)
+    @ResponseBody
+    ResponseEntity<ErrorBody> notFoundTagException(NotFoundTagException e) {
+        ErrorBody errorBody = getErrorBody(e);
+        return new ResponseEntity(errorBody, errorBody.getHttpStatus());
+    }
+
     private ErrorBody getErrorBody(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         return new ErrorBody(

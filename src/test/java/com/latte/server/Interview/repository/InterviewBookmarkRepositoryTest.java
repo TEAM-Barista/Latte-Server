@@ -77,7 +77,7 @@ public class InterviewBookmarkRepositoryTest {
         Interview interview = Interview.createInterview(user, "test content", "test title");
         em.persist(interview);
 
-        interviewService.createInterviewBookmark(user.getId(), interview);
+        interviewService.createInterviewBookmark(user, interview);
 
         em.flush();
         em.clear();

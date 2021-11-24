@@ -40,7 +40,7 @@ public class PostServiceTest {
         int isQna = 0;
 
         //when
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         //then
         Post post = postRepository.findById(postId).orElseThrow(NotFoundCategoryException::new);
@@ -61,7 +61,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         int isQna = 0;
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         String updateContent = "update content";
         String updataeTitle = "update title";
@@ -86,7 +86,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         int isQna = 0;
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         //when
         postService.delete(postId);

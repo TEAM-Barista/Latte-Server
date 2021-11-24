@@ -2,6 +2,7 @@ package com.latte.server.post.service;
 
 import com.latte.server.category.domain.Category;
 import com.latte.server.category.repository.CategoryRepository;
+import com.latte.server.common.exception.custom.*;
 import com.latte.server.post.domain.*;
 import com.latte.server.post.dto.*;
 import com.latte.server.post.dto.Response.CreatePostResponse;
@@ -27,12 +28,6 @@ import static org.springframework.util.StringUtils.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
-    private static final String NOT_EXIST_USER = "[ERROR] No such User";
-    private static final String NOT_EXIST_POST = "[ERROR] No such Post";
-    private static final String NOT_EXIST_REPLY = "[ERROR] No such Reply";
-    private static final String NOT_EXIST_TEXT = "[ERROR] Do not contain text";
-    private static final String NOT_EXIST_CATEGORY = "[ERROR] No such Category";
-    private static final String NOT_EXIST_TAG = "[ERROR] No such tag";
     private static final Long POST_BOOKMARK_DELETED = 0L;
     private static final Long REPLY_LIKE_DELETED = 0L;
     private static final int POST_REPLY_NOT_DELETED = 0;
@@ -49,8 +44,7 @@ public class PostService {
      * Post
      */
     @Transactional
-    public Long post(Long userId, String postContent, String postTitle, String postCode) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+    public Long post(User user, String postContent, String postTitle, String postCode) {
         valifyText(postContent, postTitle);
 
         Post post = Post.createPost(user, postContent, postTitle, postCode);
@@ -61,9 +55,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long qna(Long userId, String postContent, String postTitle, String postCode) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+    public Long qna(User user, String postContent, String postTitle, String postCode) {
         valifyText(postContent, postTitle);
 
         Post post = Post.createQna(user, postContent, postTitle, postCode);
@@ -75,7 +67,7 @@ public class PostService {
 
     @Transactional
     public void update(Long postId, String postContent, String postTitle, String postCode) {
-        Post findPost = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+        Post findPost = postRepository.findById(postId).orElseThrow(NotFoundPostException::new);
         valifyText(postContent, postTitle);
 
         findPost.changePost(postContent, postTitle, postCode);
@@ -83,27 +75,24 @@ public class PostService {
 
     private void valifyText(String postContent, String postTitle) {
         if (!(hasText(postTitle) && hasText(postContent))) {
-            throw new IllegalArgumentException(NOT_EXIST_TEXT);
+            throw new NotFoundTextException();
         }
     }
 
     private void valifyReply(String replyContent) {
         if (!(hasText(replyContent))) {
-            throw new IllegalArgumentException(NOT_EXIST_TEXT);
+            throw new NotFoundTextException();
         }
     }
 
     public void delete(Long postId) {
-        Post findPost = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+        Post findPost = postRepository.findById(postId).orElseThrow(NotFoundPostException::new);
 
         findPost.deletePost();
     }
 
     @Transactional
-    public Long createPostBookmark(Long userId, Post post) {
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
+    public Long createPostBookmark(User user, Post post) {
         if (bookmarkRepository.findByPost(post) == null) {
             Bookmark bookmark = Bookmark.createBookmark(user, post);
             bookmarkRepository.save(bookmark);
@@ -116,10 +105,10 @@ public class PostService {
 
     public PostDetailDto loadPost(String email, Long postId) {
         User findUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Post findPost = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+                .orElseThrow(NotFoundPostException::new);
 
         Long replyCount = replyRepository.countByPostAndIsDeleted(findPost, POST_REPLY_NOT_DELETED);
         Long bookmarkCount = bookmarkRepository.countByPost(findPost);
@@ -129,9 +118,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long reply(Post post, Long userId, String replyContent) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+    public Long reply(Post post, User user, String replyContent) {
         valifyReply(replyContent);
 
         Reply newReply = Reply.createNewReply(user, post, replyContent, POST_REPLY_NOT_DELETED);
@@ -143,11 +130,7 @@ public class PostService {
 
 
     @Transactional
-    public Long createReplyLike(Long userId, Reply reply) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
-
+    public Long createReplyLike(User user, Reply reply) {
         if (replyLikeRepository.findByReplyAndUser(reply, user) == null) {
             ReplyLike replyLike = ReplyLike.createReplyLike(reply, user);
             replyLikeRepository.save(replyLike);
@@ -161,7 +144,7 @@ public class PostService {
     @Transactional
     public void replyUpdate(Long replyId, String replyContent) {
         Reply findReply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_REPLY));
+                .orElseThrow(NotFoundReplyException::new);
         valifyReply(replyContent);
 
         findReply.changeReply(replyContent);
@@ -169,7 +152,7 @@ public class PostService {
 
     public void replyDelete(Long replyId) {
         Reply findReply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_REPLY));
+                .orElseThrow(NotFoundReplyException::new);
 
         findReply.deleteReply();
     }
@@ -177,13 +160,13 @@ public class PostService {
     @Transactional
     public Long updatePostTag(Long postId, List<Long> categoryIds) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+                .orElseThrow(NotFoundPostException::new);
 
         post.clearPostTag();
 
         for (Long categoryId : categoryIds) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_CATEGORY));
+                    .orElseThrow(NotFoundCategoryException::new);
 
             Tag tag = Tag.createTag(post, category);
             post.addPostTag(tag);
@@ -214,28 +197,28 @@ public class PostService {
 
     public Long bookmarkPost(String email, Long postId) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Post findPost = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+                .orElseThrow(NotFoundPostException::new);
 
-        Long bookmarkedPostId = createPostBookmark(user.getId(), findPost);
+        Long bookmarkedPostId = createPostBookmark(user, findPost);
 
         return bookmarkedPostId;
     }
 
     public Long writePost(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
-        Long postId = post(user.getId(), postContent, postTitle, postCode);
+        Long postId = post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+                .orElseThrow(NotFoundPostException::new);
 
         List<Long> postTagList = postTags;
         for (Long postTag : postTagList) {
             Tag tag = tagRepository.findById(postTag)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
+                    .orElseThrow(NotFoundTagException::new);
             post.addPostTag(tag);
         }
 
@@ -244,16 +227,16 @@ public class PostService {
 
     public Long writeQna(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
-        Long postId = qna(user.getId(), postContent, postTitle, postCode);
+        Long postId = qna(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+                .orElseThrow(NotFoundPostException::new);
 
         List<Long> postTagList = postTags;
         for (Long postTag : postTagList) {
             Tag tag = tagRepository.findById(postTag)
-                    .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_TAG));
+                    .orElseThrow(NotFoundTagException::new);
             post.addPostTag(tag);
         }
 
@@ -262,24 +245,24 @@ public class PostService {
 
     public Long writeReply(String email, Long postId, String replyContent) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Post findPost = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_POST));
+                .orElseThrow(NotFoundPostException::new);
 
-        Long replyId = reply(findPost, user.getId(), replyContent);
+        Long replyId = reply(findPost, user, replyContent);
 
         return replyId;
     }
 
     public Long likeReply(String email, Long replyId) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER));
+                .orElseThrow(NotFoundUserException::new);
 
         Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_REPLY));
+                .orElseThrow(NotFoundReplyException::new);
 
-        Long replyLikeId = createReplyLike(user.getId(), reply);
+        Long replyLikeId = createReplyLike(user, reply);
 
         return replyLikeId;
     }

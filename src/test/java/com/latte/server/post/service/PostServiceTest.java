@@ -61,7 +61,7 @@ public class PostServiceTest {
         String postCode = "#stdio.h";
 
         //when
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         //then
         Post post = postRepository.findById(postId).get();
@@ -82,7 +82,7 @@ public class PostServiceTest {
         String postCode = "#stdio.h";
 
         //when
-        Long postId = postService.qna(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.qna(user, postContent, postTitle, postCode);
 
         //then
         Post post = postRepository.findById(postId).get();
@@ -104,13 +104,12 @@ public class PostServiceTest {
         String postTitle = "";
         String postCode = "#stdio.h";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.post(user.getId(), postContent, postTitle, postCode);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+            // when
+            postService.post(user, postContent, postTitle, postCode);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
     }
 
     @Test
@@ -123,13 +122,13 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.post(user.getId(), postContent, postTitle, postCode);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+
+            // when
+            postService.post(user, postContent, postTitle, postCode);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
     }
 
     @Test
@@ -142,13 +141,13 @@ public class PostServiceTest {
         String postTitle = "";
         String postCode = "#stdio.h";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.post(user.getId(), postContent, postTitle, postCode);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+
+            // when
+            postService.post(user, postContent, postTitle, postCode);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
     }
 
     @Test
@@ -161,13 +160,12 @@ public class PostServiceTest {
         String postTitle = " ";
         String postCode = "#stdio.h";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.post(user.getId(), postContent, postTitle, postCode);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+            // when
+            postService.post(user, postContent, postTitle, postCode);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
     }
 
     @Test
@@ -177,7 +175,7 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         String updateContent = "update content";
         String updataeTitle = "update title";
@@ -203,19 +201,18 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         String updateContent = "update content";
         String updataeTitle = "";
         String updateCode = "update code";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
+        assertThatThrownBy(() -> {
                     // when
                     postService.update(postId, updateContent, updataeTitle, updateCode);
                 })
                 // then
-                .withMessage(NOT_EXIST_TEXT);
+                .hasMessage(NOT_EXIST_TEXT);
 
     }
 
@@ -227,19 +224,19 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         String updateContent = "";
         String updataeTitle = "update title";
         String updateCode = "update code";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.update(postId, updateContent, updataeTitle, updateCode);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+
+            // when
+            postService.update(postId, updateContent, updataeTitle, updateCode);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
 
     }
 
@@ -251,19 +248,19 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         String updateContent = " ";
         String updataeTitle = " ";
         String updateCode = "update code";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.update(postId, updateContent, updataeTitle, updateCode);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+
+            // when
+            postService.update(postId, updateContent, updataeTitle, updateCode);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
     }
 
 
@@ -274,7 +271,7 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         //when
         postService.delete(postId);
@@ -293,7 +290,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         for (int i = 0; i < 100; i++) {
-            postService.post(user.getId(), postContent + i, postTitle + i, postCode + i);
+            postService.post(user, postContent + i, postTitle + i, postCode + i);
         }
         PostSearchCondition condition = new PostSearchCondition();
         condition.setIsQna(0);
@@ -318,7 +315,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         for (int i = 0; i < 100; i++) {
-            Long postId = postService.post(user.getId(), postContent + i, postTitle + i, postCode + i);
+            Long postId = postService.post(user, postContent + i, postTitle + i, postCode + i);
             if (10 < i && i < 18) {
                 Post post = postRepository.findById(postId).get();
                 Bookmark bookmark = Bookmark.createBookmark(user, post);
@@ -349,7 +346,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         for (int i = 0; i < 100; i++) {
-            postService.post(user.getId(), postContent + i, postTitle + i, postCode + i);
+            postService.post(user, postContent + i, postTitle + i, postCode + i);
         }
 
         PostSearchCondition condition = new PostSearchCondition();
@@ -376,7 +373,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         for (int i = 0; i < 100; i++) {
-            postService.post(user.getId(), postContent + i, postTitle + i, postCode + i);
+            postService.post(user, postContent + i, postTitle + i, postCode + i);
         }
 
         PostSearchCondition condition = new PostSearchCondition();
@@ -403,7 +400,7 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         for (int i = 0; i < 100; i++) {
-            postService.post(user.getId(), postContent + i, postTitle + i, postCode + i);
+            postService.post(user, postContent + i, postTitle + i, postCode + i);
         }
 
         PostSearchCondition condition = new PostSearchCondition();
@@ -430,14 +427,14 @@ public class PostServiceTest {
         String postTitle = "test title";
         String postCode = "#stdio.h";
         for (int i = 0; i < 100; i++) {
-            postService.post(user.getId(), postContent + i, postTitle + i, postCode + i);
+            postService.post(user, postContent + i, postTitle + i, postCode + i);
         }
 
         PostSearchCondition condition = new PostSearchCondition();
         condition.setIsQna(0);
         condition.setUserId(userId);
         condition.setDateAfter(LocalDateTime.now());
-        postService.post(user.getId(), "after content", "after title", "after code");
+        postService.post(user, "after content", "after title", "after code");
 
         //when
         PageRequest pageRequest = PageRequest.of(0, 1);
@@ -457,11 +454,11 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
 
         //when
-        postService.createPostBookmark(userId, post);
+        postService.createPostBookmark(user, post);
 
         //then
         assertThat(bookmarkRepository.findByPost(post)).isNotNull();
@@ -475,12 +472,12 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
-        postService.createPostBookmark(userId, post);
+        postService.createPostBookmark(user, post);
 
         //when
-        postService.createPostBookmark(userId, post);
+        postService.createPostBookmark(user, post);
 
         //then
         assertThat(bookmarkRepository.findByPost(post)).isNull();
@@ -494,7 +491,7 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         LocalDateTime createdDate = post.getCreatedDate();
         List<Tag> postTags = post.getPostTags();
@@ -528,13 +525,13 @@ public class PostServiceTest {
         Long userId = user.getId();
 
         //then
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.loadPost(user.getEmail(), 0L);
-                })
-                // then
-                .withMessage("[ERROR] No such Post");
+        assertThatThrownBy(() -> {
+
+        // when
+            postService.loadPost(user.getEmail(), 0L);
+        })
+        // then
+        .hasMessage("[ERROR] No such Post");
     }
 
     @Test
@@ -546,16 +543,16 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
 
         //then
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.loadPost("no user", postId);
-                })
-                // then
-                .withMessage("[ERROR] No such User");
+        assertThatThrownBy(() -> {
+
+            // when
+            postService.loadPost("no user", postId);
+        })
+        // then
+        .hasMessage("[ERROR] No such User");
     }
 
     @Test
@@ -566,11 +563,11 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
 
         for (int i = 0; i < 100; i++) {
-            Long replyId = postService.reply(post, userId, "test comment" + i);
+            Long replyId = postService.reply(post, user, "test comment" + i);
         }
 
         ReplySearchCondition condition = new ReplySearchCondition();
@@ -594,11 +591,11 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
 
         for (int i = 0; i < 100; i++) {
-            Long replyId = postService.reply(post, userId, "test comment" + i);
+            Long replyId = postService.reply(post, user, "test comment" + i);
         }
 
         ReplySearchCondition condition = new ReplySearchCondition();
@@ -622,12 +619,12 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
 
         //when
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
 
         //then
         Reply reply = replyRepository.findById(replyId).get();
@@ -645,14 +642,14 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
         Reply reply = replyRepository.findById(replyId).get();
 
         //when
-        Long replyLikeId = postService.createReplyLike(userId, reply);
+        Long replyLikeId = postService.createReplyLike(user, reply);
 
         //then
         assertThat(replyLikeRepository.countByReply(reply)).isEqualTo(1);
@@ -667,15 +664,15 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
         Reply reply = replyRepository.findById(replyId).get();
 
         //when
-        postService.createReplyLike(userId, reply);
-        Long replyLikeId = postService.createReplyLike(userId, reply);
+        postService.createReplyLike(user, reply);
+        Long replyLikeId = postService.createReplyLike(user, reply);
 
         //then
         assertThat(replyLikeRepository.countByReply(reply)).isEqualTo(0);
@@ -690,10 +687,10 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
         String updateReplyContent = "updated content";
 
         //when
@@ -713,19 +710,19 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
         String updateReplyContent = "";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.replyUpdate(replyId, updateReplyContent);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+
+            // when
+            postService.replyUpdate(replyId, updateReplyContent);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
 
     }
 
@@ -738,19 +735,18 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
         String updateReplyContent = " ";
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> {
-                    // when
-                    postService.replyUpdate(replyId, updateReplyContent);
-                })
-                // then
-                .withMessage(NOT_EXIST_TEXT);
+        assertThatThrownBy(() -> {
+            // when
+            postService.replyUpdate(replyId, updateReplyContent);
+        })
+        // then
+        .hasMessage(NOT_EXIST_TEXT);
     }
 
     @Test
@@ -761,10 +757,10 @@ public class PostServiceTest {
         String postContent = "test content";
         String postTitle = "test title";
         String postCode = "#stdio.h";
-        Long postId = postService.post(user.getId(), postContent, postTitle, postCode);
+        Long postId = postService.post(user, postContent, postTitle, postCode);
         Post post = postRepository.findById(postId).get();
         String replyContent = "test reply";
-        Long replyId = postService.reply(post, userId, replyContent);
+        Long replyId = postService.reply(post, user, replyContent);
 
         //when
         postService.replyDelete(replyId);

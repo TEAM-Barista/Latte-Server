@@ -44,10 +44,10 @@ public class InterviewRepositoryTest {
         User user = createUser();
         String interviewContent = "test content";
         String interviewTitle = "test title";
-        interviewService.createInterview(user.getId(), interviewContent, interviewTitle);
+        interviewService.createInterview(user, interviewContent, interviewTitle);
         String interviewContent2 = "test content2";
         String interviewTitle2 = "test title2";
-        interviewService.createInterview(user.getId(), interviewContent2, interviewTitle2);
+        interviewService.createInterview(user, interviewContent2, interviewTitle2);
 
         //when
         Interview interviewByCreatedDate = interviewRepository.findInterviewByCreatedDate();
