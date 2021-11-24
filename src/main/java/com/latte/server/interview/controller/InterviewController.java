@@ -38,41 +38,41 @@ public class InterviewController {
     }
 
 
-    @PostMapping("/api/v1/interviewBookmark")
+    @PostMapping("/api/v1/interview/interviewBookmark")
     public BookmarkInterviewResponse interviewBookmarkV1(@RequestBody @Valid BookmarkInterviewRequest request, @AuthenticationPrincipal String email) {
         Long interviewBookmarkId = interviewService.bookmarkInterview(request.getInterviewId(), email);
 
         return new BookmarkInterviewResponse(interviewBookmarkId);
     }
 
-    @PostMapping("/api/v1/interviewLike")
+    @PostMapping("/api/v1/interview/interviewLike")
     public LikeInterviewResponse interviewLikeV1(@RequestBody @Valid LikeInterviewRequest request, @AuthenticationPrincipal String email) {
         Long interviewLikeId = interviewService.likeInterview(request.getInterviewId(), email);
 
         return new LikeInterviewResponse(interviewLikeId);
     }
 
-    @PostMapping("/api/v1/seniorRequest")
+    @PostMapping("/api/v1/interview/seniorRequest")
     public SeniorRequestResponse seniorRequestV1(@RequestBody @Valid SeniorRequestRequest request, @AuthenticationPrincipal String email) {
         Long seniorRequestId = interviewService.requestSenior(request.getInterviewId(), request.getTitle(), request.getContent(), email);
 
         return new SeniorRequestResponse(seniorRequestId);
     }
 
-    @GetMapping("/api/v1/interviewListRecent")
+    @GetMapping("/api/v1/interview/interviewListRecent")
     public Page<InterviewListDto> interviewListRecentV1(InterviewSearchCondition condition, Pageable pageable) {
         Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecent(condition, pageable);
 
         return result;
     }
 
-    @GetMapping("/api/v1/interviewListRecommend")
+    @GetMapping("/api/v1/interview/interviewListRecommend")
     public Page<InterviewListDto> interviewListRecommendV1(InterviewSearchCondition condition, Pageable pageable) {
         Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecommend(condition, pageable);
         return result;
     }
 
-    @GetMapping("/api/v1/interview")
+    @GetMapping("/api/v1/interview/readInterview")
     public LoadInterviewResponse<InterviewDetailDto> loadInterviewV1(@RequestBody @Valid LoadInterviewRequest request, @AuthenticationPrincipal String email) {
         return new LoadInterviewResponse<>(LOADED_INTERVIEW_SIZE, interviewService.loadInterview(email, request.getInterviewId()));
     }
