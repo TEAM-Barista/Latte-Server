@@ -32,36 +32,36 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/api/v1/post/postList")
-    public Page<PostListDto> postListV1(PostSearchCondition condition, Pageable pageable) {
-        Page<PostListDto> result = postService.searchRepositoryPostPage(condition, pageable);
+    public Page<PostListDto> postListV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<PostListDto> result = postService.searchRepositoryPostPage(condition, pageable, email);
 
         return result;
     }
 
     @GetMapping("/api/v1/post/postListPopular")
-    public Page<PostListDto> postListPopularV1(PostSearchCondition condition, Pageable pageable) {
-        Page<PostListDto> result = postService.searchRepositoryPostListPopular(condition, pageable);
+    public Page<PostListDto> postListPopularV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<PostListDto> result = postService.searchRepositoryPostListPopular(condition, pageable, email);
 
         return result;
     }
 
     @GetMapping("/api/v1/post/postListRecent")
-    public Page<PostListDto> postListRecentV1(PostSearchCondition condition, Pageable pageable) {
-        Page<PostListDto> result = postService.searchRepositoryPostListRecent(condition, pageable);
+    public Page<PostListDto> postListRecentV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<PostListDto> result = postService.searchRepositoryPostListRecent(condition, pageable, email);
 
         return result;
     }
 
     @GetMapping("/api/v1/post/replyListRecent")
-    public Page<ReplyDto> replyListRecentV1(ReplySearchCondition condition, Pageable pageable) {
-        Page<ReplyDto> result = postService.searchRepositoryReplyPageRecent(condition, pageable);
+    public Page<ReplyDto> replyListRecentV1(ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<ReplyDto> result = postService.searchRepositoryReplyPageRecent(condition, pageable, email);
 
         return result;
     }
 
     @GetMapping("/api/v1/post/replyListOld")
-    public Page<ReplyDto> replyListOldV1(ReplySearchCondition condition, Pageable pageable) {
-        Page<ReplyDto> result = postService.searchRepositoryReplyPageOld(condition, pageable);
+    public Page<ReplyDto> replyListOldV1(ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<ReplyDto> result = postService.searchRepositoryReplyPageOld(condition, pageable, email);
 
         return result;
     }

@@ -175,23 +175,38 @@ public class PostService {
         return postId;
     }
 
-    public Page<PostListDto> searchRepositoryPostPage(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostListDto> searchRepositoryPostPage(PostSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return postRepository.searchPostPage(condition, pageable);
     }
 
-    public Page<PostListDto> searchRepositoryPostListPopular(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostListDto> searchRepositoryPostListPopular(PostSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return postRepository.searchPostPagePopular(condition, pageable);
     }
 
-    public Page<PostListDto> searchRepositoryPostListRecent(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostListDto> searchRepositoryPostListRecent(PostSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return postRepository.searchPostPageRecent(condition, pageable);
     }
 
-    public Page<ReplyDto> searchRepositoryReplyPageRecent(ReplySearchCondition condition, Pageable pageable) {
+    public Page<ReplyDto> searchRepositoryReplyPageRecent(ReplySearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return postRepository.searchReplyPageRecent(condition, pageable);
     }
 
-    public Page<ReplyDto> searchRepositoryReplyPageOld(ReplySearchCondition condition, Pageable pageable) {
+    public Page<ReplyDto> searchRepositoryReplyPageOld(ReplySearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return postRepository.searchReplyPageOld(condition, pageable);
     }
 

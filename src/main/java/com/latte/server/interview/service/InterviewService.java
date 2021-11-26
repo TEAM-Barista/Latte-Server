@@ -190,11 +190,17 @@ public class InterviewService {
         return seniorRequestId;
     }
 
-    public Page<InterviewListDto> searchRepositoryInterviewPageRecent(InterviewSearchCondition condition, Pageable pageable) {
+    public Page<InterviewListDto> searchRepositoryInterviewPageRecent(InterviewSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return interviewRepository.searchInterviewPageRecent(condition, pageable);
     }
 
-    public Page<InterviewListDto> searchRepositoryInterviewPageRecommend(InterviewSearchCondition condition, Pageable pageable) {
+    public Page<InterviewListDto> searchRepositoryInterviewPageRecommend(InterviewSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
         return interviewRepository.searchInterviewPageRecommend(condition, pageable);
     }
 }

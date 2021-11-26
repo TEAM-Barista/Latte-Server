@@ -60,15 +60,15 @@ public class InterviewController {
     }
 
     @GetMapping("/api/v1/interview/interviewListRecent")
-    public Page<InterviewListDto> interviewListRecentV1(InterviewSearchCondition condition, Pageable pageable) {
-        Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecent(condition, pageable);
+    public Page<InterviewListDto> interviewListRecentV1(InterviewSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecent(condition, pageable, email);
 
         return result;
     }
 
     @GetMapping("/api/v1/interview/interviewListRecommend")
-    public Page<InterviewListDto> interviewListRecommendV1(InterviewSearchCondition condition, Pageable pageable) {
-        Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecommend(condition, pageable);
+    public Page<InterviewListDto> interviewListRecommendV1(InterviewSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecommend(condition, pageable, email);
         return result;
     }
 
