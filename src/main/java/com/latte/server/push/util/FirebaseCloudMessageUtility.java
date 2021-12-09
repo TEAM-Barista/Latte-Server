@@ -8,6 +8,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import com.latte.server.common.exception.custom.FirebaseCloudMessageException;
+import com.latte.server.push.domain.PushWrapper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -52,14 +53,18 @@ public class FirebaseCloudMessageUtility {
         this.instance = FirebaseMessaging.getInstance(firebaseApp);
     }
 
-    public void sendTargetMessage(
-            String targetToken,
-            String title,
-            String body,
-            String target,
-            String targetUrl
-    ) {
-        Message message = makeTargetMessage(targetToken, title, body, target, targetUrl);
+    /**
+     * 토큰을 통해서 메시지 전송
+     * @param pushWrapper
+     */
+    public void sendTargetMessage(PushWrapper pushWrapper) {
+        Message message = makeTargetMessage(
+                pushWrapper.getTargetToken(),
+                pushWrapper.getTitle(),
+                pushWrapper.getBody(),
+                pushWrapper.getTarget(),
+                pushWrapper.getTargetUrl()
+        );
 
         try {
             this.instance.send(message);
@@ -68,6 +73,14 @@ public class FirebaseCloudMessageUtility {
         }
     }
 
+    /**
+     * 토픽 구독 방식을 통해서 메시지 전송
+     * @param topic
+     * @param title
+     * @param body
+     * @param target
+     * @param targetUrl
+     */
     public void sendTopicMessage(
             String topic,
             String title,
