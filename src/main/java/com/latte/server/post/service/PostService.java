@@ -3,11 +3,18 @@ package com.latte.server.post.service;
 import com.latte.server.category.domain.Category;
 import com.latte.server.category.repository.CategoryRepository;
 import com.latte.server.common.exception.custom.*;
+import com.latte.server.common.job.AsyncJob;
 import com.latte.server.post.domain.*;
 import com.latte.server.post.dto.*;
 import com.latte.server.post.dto.Response.CreatePostResponse;
 import com.latte.server.post.repository.*;
+import com.latte.server.push.domain.PushToken;
+import com.latte.server.push.domain.PushWrapper;
+import com.latte.server.push.repository.PushTokenRepository;
+import com.latte.server.push.util.FirebaseCloudMessageUtility;
 import com.latte.server.user.domain.User;
+import com.latte.server.user.domain.UserCategory;
+import com.latte.server.user.repository.UserCategoryRepository;
 import com.latte.server.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,8 +23,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
+import static com.latte.server.push.domain.PushMessage.MATCH_NEW_POST_PUSH_MESSAGE;
+import static com.latte.server.push.domain.PushMessage.MATCH_NEW_QUESTION_AND_ANSWER_PUSH_MESSAGE;
+import static com.latte.server.push.domain.PushWrapper.*;
 import static org.springframework.util.StringUtils.*;
 
 /**
@@ -39,6 +51,15 @@ public class PostService {
     private final BookmarkRepository bookmarkRepository;
     private final ReplyRepository replyRepository;
     private final ReplyLikeRepository replyLikeRepository;
+
+    /**
+     * NEW DI
+     */
+
+    private final FirebaseCloudMessageUtility firebaseCloudMessageUtility;
+    private final UserCategoryRepository userCategoryRepository;
+    private final PushTokenRepository pushTokenRepository;
+    private final AsyncJob asyncJob;
 
     /**
      * Post
@@ -222,6 +243,7 @@ public class PostService {
         return bookmarkedPostId;
     }
 
+    @Transactional
     public Long writePost(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -237,9 +259,18 @@ public class PostService {
             post.addPostTag(tag);
         }
 
+        /**
+         * 알림 전송 로직
+         * 비동기 로직
+         */
+        asyncJob.onStart(() -> {
+            sendPushMessagesMatchByTags(false, post.getPostTitle(), postTagList);
+        });
+
         return postId;
     }
 
+    @Transactional
     public Long writeQna(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -255,9 +286,18 @@ public class PostService {
             post.addPostTag(tag);
         }
 
+        /**
+         * 알림 전송 로직
+         * 비동기 로직
+         */
+        asyncJob.onStart(() -> {
+            sendPushMessagesMatchByTags(true, post.getPostTitle(), postTagList);
+        });
+
         return postId;
     }
 
+    @Transactional
     public Long writeReply(String email, Long postId, String replyContent) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -266,6 +306,14 @@ public class PostService {
                 .orElseThrow(NotFoundPostException::new);
 
         Long replyId = reply(findPost, user, replyContent);
+
+        /**
+         * 알림 전송 로직
+         * 비동기 로직
+         */
+        asyncJob.onStart(() -> {
+            sendPushMessageByReply(findPost.getPostTitle(), findPost.getUser());
+        });
 
         return replyId;
     }
@@ -280,5 +328,128 @@ public class PostService {
         Long replyLikeId = createReplyLike(user, reply);
 
         return replyLikeId;
+    }
+
+    /**
+     * 태그 매칭 알람 전송 가능 사용자 선별 함수
+     * @param isQna
+     * @param title
+     * @param postTags
+     */
+    private void sendPushMessagesMatchByTags(boolean isQna, String title, List<Long> postTags) {
+        ConcurrentHashMap<Long, List<String>> userTokenMaps = getUserTokenMaps();
+        ConcurrentHashMap<Long, ConcurrentHashMap<Long, Boolean>> userCategoriesMaps = getUserCategoriesMaps();
+        // 메시징 선별 작업
+        userCategoriesMaps.forEach((userId, categoryMap) ->{
+            for (Long categoryId : postTags) {
+                if (validateSendCondition(userId, categoryId, categoryMap, userTokenMaps)) {
+                    // 푸시 메시지 전송
+                    sendPushMessagesByTokens(isQna, title, userTokenMaps.get(userId));
+                    break;
+                }
+            }
+        });
+    }
+
+    /**
+     * 댓글 알람 전송 함수
+     * @param title
+     * @param user
+     */
+    @Transactional(readOnly = true)
+    public void sendPushMessageByReply(String title, User user) {
+        pushTokenRepository.findByUser(user).ifPresent(pushToken -> {
+            firebaseCloudMessageUtility.sendTargetMessage(
+                    ofNewReply(pushToken.getToken(), title)
+            );
+        });
+    }
+
+    /**
+     * 사용자 토큰 리스트 HashMap 변환 함수
+     * 구조
+     * Long userId : [String pushToken... ]
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public ConcurrentHashMap<Long, List<String>> getUserTokenMaps() {
+        ConcurrentHashMap<Long, List<String>> userTokenMaps = new ConcurrentHashMap();
+        List<PushToken> pushTokens = pushTokenRepository.findAll();
+        for (PushToken pushToken : pushTokens) {
+            Long userId = pushToken.getUser().getId();
+            String token = pushToken.getToken();
+
+            if (userTokenMaps.containsKey(userId)) {
+                userTokenMaps.get(userId).add(token);
+                continue;
+            }
+
+            List<String> tokens = new ArrayList();
+            tokens.add(token);
+            userTokenMaps.put(userId, tokens);
+        }
+        return userTokenMaps;
+    }
+
+    /**
+     * 사용자 카테고리 리스트 HashMap 변환
+     * 구조
+     * Long userId : {
+     *     Long categoryId: Boolean
+     * }
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public ConcurrentHashMap<Long, ConcurrentHashMap<Long, Boolean>> getUserCategoriesMaps() {
+        ConcurrentHashMap<Long, ConcurrentHashMap<Long, Boolean>> userCategoriesMaps = new ConcurrentHashMap();
+        List<UserCategory> userCategories = userCategoryRepository.findAll();
+        for (UserCategory userCategory : userCategories) {
+            Long userId = userCategory.getUser().getId();
+            Long categoryId = userCategory.getCategory().getId();
+
+            if (userCategoriesMaps.containsKey(userId)) {
+                userCategoriesMaps.get(userId).put(categoryId, true);
+                continue;
+            }
+
+            ConcurrentHashMap<Long, Boolean> categoryMap = new ConcurrentHashMap();
+            categoryMap.put(categoryId, true);
+            userCategoriesMaps.put(userId, categoryMap);
+        }
+        return userCategoriesMaps;
+    }
+
+    private boolean validateSendCondition(
+            Long userId,
+            Long categoryId,
+            ConcurrentHashMap<Long, Boolean> categoryMap,
+            ConcurrentHashMap<Long, List<String>> userTokenMaps
+    ) {
+        if (categoryMap.containsKey(categoryId) && userTokenMaps.containsKey(userId)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void sendPushMessagesByTokens(boolean isQna, String title, List<String> tokens) {
+        for (String targetToken : tokens) {
+            // 비동기 로직
+            asyncJob.onStart(() -> {
+                firebaseCloudMessageUtility.sendTargetMessage(
+                        getPushWrapper(isQna, title, targetToken)
+                );
+            });
+        }
+    }
+
+    private PushWrapper getPushWrapper(
+            boolean isQna,
+            String title,
+            String targetToken
+    ) {
+        if (isQna) {
+            return ofMatchQnA(targetToken, title);
+        }
+        return ofMatchPost(targetToken, title);
     }
 }
