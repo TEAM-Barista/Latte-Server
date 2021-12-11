@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -787,6 +788,65 @@ public class PostServiceTest {
         //then
         List<Tag> tags = post.getPostTags();
         assertThat(tags).isEqualTo(findPost.getPostTags());
+    }
+
+    @Test
+    public void 최근_북마크한_포스트() {
+        //given
+        User user = createUser();
+        user.setEmail("testEmail");
+        String postContent = "test content";
+        String postContent2 = "test content2";
+        String postContent3 = "test content3";
+        String postTitle = "test title";
+        String postTitle2 = "test title2";
+        String postTitle3 = "test title3";
+        String postCode = "#stdio.h";
+        String postCode2 = "#stdio.h2";
+        String postCode3 = "#stdio.h3";
+        Long postId = postService.post(user, postContent, postTitle, postCode);
+        Long postId2 = postService.post(user, postContent2, postTitle2, postCode2);
+        Long postId3 = postService.post(user, postContent3, postTitle3, postCode3);
+        Post post = postRepository.findById(postId).get();
+        Post post2 = postRepository.findById(postId2).get();
+        Post post3 = postRepository.findById(postId3).get();
+        postService.createPostBookmark(user, post);
+        postService.createPostBookmark(user, post2);
+        postService.createPostBookmark(user, post3);
+
+        //when
+        PostListDto postListDto = postService.latestBookmark(user.getEmail());
+
+        //then
+        assertThat(postListDto.getPostTitle()).isEqualTo(postTitle3);
+    }
+
+    @Test
+    public void 최근_작성한_포스트() {
+        //given
+        User user = createUser();
+        user.setEmail("testEmail");
+        String postContent = "test content";
+        String postContent2 = "test content2";
+        String postContent3 = "test content3";
+        String postTitle = "test title";
+        String postTitle2 = "test title2";
+        String postTitle3 = "test title3";
+        String postCode = "#stdio.h";
+        String postCode2 = "#stdio.h2";
+        String postCode3 = "#stdio.h3";
+        Long postId = postService.post(user, postContent, postTitle, postCode);
+        Long postId2 = postService.post(user, postContent2, postTitle2, postCode2);
+        Long postId3 = postService.post(user, postContent3, postTitle3, postCode3);
+        Post post = postRepository.findById(postId).get();
+        Post post2 = postRepository.findById(postId2).get();
+        Post post3 = postRepository.findById(postId3).get();
+
+        //when
+        PostListDto postListDto = postService.latestWriting(user.getEmail());
+
+        //then
+        assertThat(postListDto.getPostTitle()).isEqualTo(postTitle3);
     }
 
     private Post createPost() {
