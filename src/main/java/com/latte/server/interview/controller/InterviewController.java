@@ -72,6 +72,12 @@ public class InterviewController {
         return result;
     }
 
+    @GetMapping("/api/v1/interview/searchInterviews")
+    public Page<InterviewListDto> searchInterviewsV1(InterviewSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPage(condition, pageable, email);
+        return result;
+    }
+
     @GetMapping("/api/v1/interview/readInterview")
     public LoadInterviewResponse<InterviewDetailDto> loadInterviewV1(@RequestBody @Valid LoadInterviewRequest request, @AuthenticationPrincipal String email) {
         return new LoadInterviewResponse<>(LOADED_INTERVIEW_SIZE, interviewService.loadInterview(email, request.getInterviewId()));

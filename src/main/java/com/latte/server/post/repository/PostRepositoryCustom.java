@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
  */
 public interface PostRepositoryCustom {
     Page<PostListDto> searchPostPage(PostSearchCondition condition, Pageable pageable);
+    Page<PostListDto> searchBookmarkedPostPageRecent(PostSearchCondition condition, Pageable pageable);
+    Page<PostListDto> searchMyPostPageRecent(PostSearchCondition condition, Pageable pageable);
     Page<PostListDto> searchPostPageRecent(PostSearchCondition condition, Pageable pageable);
     Page<PostListDto> searchPostPagePopular(PostSearchCondition condition, Pageable pageable);
     Page<ReplyDto> searchReplyPageRecent(ReplySearchCondition condition, Pageable pageable);

@@ -203,4 +203,11 @@ public class InterviewService {
         condition.setUserId(user.getId());
         return interviewRepository.searchInterviewPageRecommend(condition, pageable);
     }
+
+    public Page<InterviewListDto> searchRepositoryInterviewPage(InterviewSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
+        return interviewRepository.searchInterviewPageRecommend(condition, pageable);
+    }
 }

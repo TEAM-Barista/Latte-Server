@@ -28,15 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private static final int LOADED_POST_SIZE = 1;
+    private static final int POST_LIST_SIZE = 1;
 
     private final PostService postService;
-
-    @GetMapping("/api/v1/post/postList")
-    public Page<PostListDto> postListV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
-        Page<PostListDto> result = postService.searchRepositoryPostPage(condition, pageable, email);
-
-        return result;
-    }
 
     @GetMapping("/api/v1/post/postListPopular")
     public Page<PostListDto> postListPopularV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
@@ -48,6 +42,27 @@ public class PostController {
     @GetMapping("/api/v1/post/postListRecent")
     public Page<PostListDto> postListRecentV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         Page<PostListDto> result = postService.searchRepositoryPostListRecent(condition, pageable, email);
+
+        return result;
+    }
+
+    @GetMapping("/api/v1/post/searchPosts")
+    public Page<PostListDto> searchPostsV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<PostListDto> result = postService.searchRepositoryPostPage(condition, pageable, email);
+
+        return result;
+    }
+
+    @GetMapping("/api/v1/post/latestBookmarkedPosts")
+    public Page<PostListDto> latestBookmarkedPostsV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<PostListDto> result = postService.searchRepositoryBookmarkedPostPageRecent(condition, pageable, email);
+
+        return result;
+    }
+
+    @GetMapping("/api/v1/post/latestMyPosts")
+    public Page<PostListDto> latestMyPostsV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        Page<PostListDto> result = postService.searchRepositoryMyPostPageRecent(condition, pageable, email);
 
         return result;
     }
@@ -74,8 +89,8 @@ public class PostController {
     }
 
     @GetMapping("/api/v1/post/readPost")
-    public LoadPostResponse<PostDetailDto> loadPostV1(@RequestBody @Valid LoadPostRequest request, @AuthenticationPrincipal String email) {
-        return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(email, request.getPostId()));
+    public LoadPostResponse<PostDetailDto> loadPostV1(@PathVariable("postId") Long postId, @AuthenticationPrincipal String email) {
+        return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(email, postId));
     }
 
     @PostMapping("/api/v1/post/writePost")
@@ -129,6 +144,15 @@ public class PostController {
         postService.update(postId, request.getPostContent(), request.getPostTitle(), request.getPostCode());
         postService.updatePostTag(postId, request.getTagIds());
         return new UpdatePostResponse(postId);
+    }
+
+    @GetMapping("/api/v1/post/latestBookmark")
+    public LatestBookmarkResponse<PostListDto> latestOnePostBookmarkV1(@AuthenticationPrincipal String email) {
+        return new LatestBookmarkResponse<>(POST_LIST_SIZE, postService.latestBookmark(email));
+    }
+    @GetMapping("/api/v1/post/latestWriting")
+    public LatestWritingResponse<PostListDto> latestOnePostWritingV1(@AuthenticationPrincipal String email) {
+        return new LatestWritingResponse<>(POST_LIST_SIZE, postService.latestWriting(email));
     }
 
 }

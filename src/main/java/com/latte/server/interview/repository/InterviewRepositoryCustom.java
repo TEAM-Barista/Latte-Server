@@ -15,6 +15,8 @@ import java.util.List;
 public interface InterviewRepositoryCustom {
     Interview findInterviewByCreatedDate();
 
+    Page<InterviewListDto> searchInterviewPage(InterviewSearchCondition condition, Pageable pageable);
+
     Page<InterviewListDto> searchInterviewPageRecent(InterviewSearchCondition condition, Pageable pageable);
 
     Page<InterviewListDto> searchInterviewPageRecommend(InterviewSearchCondition condition, Pageable pageable);

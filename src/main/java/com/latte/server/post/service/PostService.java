@@ -5,7 +5,6 @@ import com.latte.server.category.repository.CategoryRepository;
 import com.latte.server.common.exception.custom.*;
 import com.latte.server.post.domain.*;
 import com.latte.server.post.dto.*;
-import com.latte.server.post.dto.Response.CreatePostResponse;
 import com.latte.server.post.repository.*;
 import com.latte.server.user.domain.User;
 import com.latte.server.user.repository.UserRepository;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.util.StringUtils.*;
@@ -29,6 +29,7 @@ import static org.springframework.util.StringUtils.*;
 @RequiredArgsConstructor
 public class PostService {
     private static final Long POST_BOOKMARK_DELETED = 0L;
+    private static final Long BOOKMARKED_POST = 1L;
     private static final Long REPLY_LIKE_DELETED = 0L;
     private static final int POST_REPLY_NOT_DELETED = 0;
 
@@ -210,6 +211,20 @@ public class PostService {
         return postRepository.searchReplyPageOld(condition, pageable);
     }
 
+    public Page<PostListDto> searchRepositoryBookmarkedPostPageRecent(PostSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
+        return postRepository.searchBookmarkedPostPageRecent(condition, pageable);
+    }
+
+    public Page<PostListDto> searchRepositoryMyPostPageRecent(PostSearchCondition condition, Pageable pageable, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+        condition.setUserId(user.getId());
+        return postRepository.searchMyPostPageRecent(condition, pageable);
+    }
+
     public Long bookmarkPost(String email, Long postId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -280,5 +295,34 @@ public class PostService {
         Long replyLikeId = createReplyLike(user, reply);
 
         return replyLikeId;
+    }
+
+    public PostListDto latestBookmark(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+
+        Bookmark findBookmark = bookmarkRepository.findTopByUserOrderByCreatedDateDesc(user);
+        Post findPost = findBookmark.getPost();
+
+        Long replyCount = replyRepository.countByPostAndIsDeleted(findPost, POST_REPLY_NOT_DELETED);
+
+        Long bookmarkCount = bookmarkRepository.countByPost(findPost);
+
+        return new PostListDto(findPost, replyCount, bookmarkCount, BOOKMARKED_POST);
+    }
+
+    public PostListDto latestWriting(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(NotFoundUserException::new);
+
+        Post findPost = postRepository.findTopByUserOrderByCreatedDateDesc(user);
+
+        Long replyCount = replyRepository.countByPostAndIsDeleted(findPost, POST_REPLY_NOT_DELETED);
+
+        Long bookmarkCount = bookmarkRepository.countByPost(findPost);
+
+        Long isBookmarked = bookmarkRepository.countByPostAndUser(findPost, user);
+
+        return new PostListDto(findPost, replyCount, bookmarkCount, isBookmarked);
     }
 }

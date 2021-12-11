@@ -2,26 +2,23 @@ package com.latte.server.post.repository;
 
 import com.latte.server.post.domain.*;
 import com.latte.server.post.dto.*;
-import com.latte.server.user.domain.QUser;
 import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import javax.persistence.EntityManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.latte.server.post.domain.QBookmark.*;
-import static com.latte.server.post.domain.QPost.*;
+import static com.latte.server.post.domain.QPost.post;
 import static com.latte.server.post.domain.QReply.reply;
 import static com.latte.server.post.domain.QReplyLike.*;
 import static com.latte.server.user.domain.QUser.*;
@@ -43,6 +40,66 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     @Override
     public Page<PostListDto> searchPostPage(PostSearchCondition condition, Pageable pageable) {
+        List<PostListDto> content = queryFactory
+                .select(new QPostListDto(
+                        post,
+                        count(reply),
+                        count(bookmark),
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(count(bookmark))
+                                        .from(bookmark)
+                                        .where(bookmark.user.id.eq(condition.getUserId()))
+                                , "isBookmarked"
+                        )
+                ))
+                .from(post)
+                .leftJoin(reply)
+                .on(reply.post.id.eq(post.id)).fetchJoin()
+                .leftJoin(bookmark)
+                .on(bookmark.post.id.eq(post.id)).fetchJoin()
+                .where(
+                        post.isDeleted.eq(NOT_DELETED),
+                        isQna(condition.getIsQna()),
+                        titleKeyword(condition.getTitleKeyword()),
+                        contentKeyword(condition.getContentKeyword()),
+                        codeKeyword(condition.getCodeKeyword()),
+                        dateAfter(condition.getDateAfter()),
+                        searchTag1(condition.getCategoryIds()),
+                        searchTag2(condition.getCategoryIds()),
+                        searchTag3(condition.getCategoryIds()),
+                        searchTag4(condition.getCategoryIds()),
+                        searchTag5(condition.getCategoryIds())
+                )
+                .groupBy(post.id)
+                .orderBy(post.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // count 쿼리
+        JPAQuery<Post> countQuery = queryFactory
+                .selectFrom(post)
+                .where(
+                        post.isDeleted.eq(NOT_DELETED),
+                        isQna(condition.getIsQna()),
+                        titleKeyword(condition.getTitleKeyword()),
+                        contentKeyword(condition.getContentKeyword()),
+                        codeKeyword(condition.getCodeKeyword()),
+                        dateAfter(condition.getDateAfter()),
+                        searchTag1(condition.getCategoryIds()),
+                        searchTag2(condition.getCategoryIds()),
+                        searchTag3(condition.getCategoryIds()),
+                        searchTag4(condition.getCategoryIds()),
+                        searchTag5(condition.getCategoryIds())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+
+    @Override
+    public Page<PostListDto> searchPostPageRecent(PostSearchCondition condition, Pageable pageable) {
         List<PostListDto> content = queryFactory
                 .select(new QPostListDto(
                         post,
@@ -91,7 +148,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public Page<PostListDto> searchPostPageRecent(PostSearchCondition condition, Pageable pageable) {
+    public Page<PostListDto> searchBookmarkedPostPageRecent(PostSearchCondition condition, Pageable pageable) {
         List<PostListDto> content = queryFactory
                 .select(new QPostListDto(
                         post,
@@ -112,6 +169,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .on(bookmark.post.id.eq(post.id)).fetchJoin()
                 .where(
                         post.isDeleted.eq(NOT_DELETED),
+                        bookmark.user.id.eq(condition.getUserId()),
                         isQna(condition.getIsQna()),
                         titleKeyword(condition.getTitleKeyword()),
                         contentKeyword(condition.getContentKeyword()),
@@ -129,6 +187,58 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .selectFrom(post)
                 .where(
                         post.isDeleted.eq(NOT_DELETED),
+                        bookmark.user.id.eq(condition.getUserId()),
+                        isQna(condition.getIsQna()),
+                        titleKeyword(condition.getTitleKeyword()),
+                        contentKeyword(condition.getContentKeyword()),
+                        codeKeyword(condition.getCodeKeyword()),
+                        dateAfter(condition.getDateAfter())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+    }
+
+    @Override
+    public Page<PostListDto> searchMyPostPageRecent(PostSearchCondition condition, Pageable pageable) {
+        List<PostListDto> content = queryFactory
+                .select(new QPostListDto(
+                        post,
+                        count(reply),
+                        count(bookmark),
+                        ExpressionUtils.as(
+                                JPAExpressions
+                                        .select(count(bookmark))
+                                        .from(bookmark)
+                                        .where(bookmark.user.id.eq(condition.getUserId()))
+                                , "isBookmarked"
+                        )
+                ))
+                .from(post)
+                .leftJoin(reply)
+                .on(reply.post.id.eq(post.id)).fetchJoin()
+                .leftJoin(bookmark)
+                .on(bookmark.post.id.eq(post.id)).fetchJoin()
+                .where(
+                        post.isDeleted.eq(NOT_DELETED),
+                        post.user.id.eq(condition.getUserId()),
+                        isQna(condition.getIsQna()),
+                        titleKeyword(condition.getTitleKeyword()),
+                        contentKeyword(condition.getContentKeyword()),
+                        codeKeyword(condition.getCodeKeyword()),
+                        dateAfter(condition.getDateAfter())
+                )
+                .groupBy(post.id)
+                .orderBy(post.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        // count 쿼리
+        JPAQuery<Post> countQuery = queryFactory
+                .selectFrom(post)
+                .where(
+                        post.isDeleted.eq(NOT_DELETED),
+                        post.user.id.eq(condition.getUserId()),
                         isQna(condition.getIsQna()),
                         titleKeyword(condition.getTitleKeyword()),
                         contentKeyword(condition.getContentKeyword()),
@@ -315,4 +425,25 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private BooleanExpression dateAfter(LocalDateTime localDateTime) {
         return localDateTime != null ? post.createdDate.after(localDateTime) : null;
     }
+
+    private BooleanExpression searchTag1(ArrayList<Long> categoryId) {
+        return categoryId != null ? post.postTags.get(0).category.id.eq(categoryId.get(0)) : null;
+    }
+
+    private BooleanExpression searchTag2(ArrayList<Long> categoryId) {
+        return categoryId != null ? post.postTags.get(1).category.id.eq(categoryId.get(1)) : null;
+    }
+
+    private BooleanExpression searchTag3(ArrayList<Long> categoryId) {
+        return categoryId != null ? post.postTags.get(2).category.id.eq(categoryId.get(2)) : null;
+    }
+
+    private BooleanExpression searchTag4(ArrayList<Long> categoryId) {
+        return categoryId != null ? post.postTags.get(3).category.id.eq(categoryId.get(3)) : null;
+    }
+
+    private BooleanExpression searchTag5(ArrayList<Long> categoryId) {
+        return categoryId != null ? post.postTags.get(4).category.id.eq(categoryId.get(4)) : null;
+    }
+
 }
