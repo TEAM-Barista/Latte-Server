@@ -73,7 +73,7 @@ public class InterviewController {
         return result;
     }
 
-    @GetMapping("/api/v1/interview")
+    @GetMapping("/api/v1/interview/{interviewId}")
     public LoadInterviewResponse<InterviewDetailDto> loadInterviewV1(@PathVariable Long interviewId, @AuthenticationPrincipal String email) {
         return new LoadInterviewResponse<>(LOADED_INTERVIEW_SIZE, interviewService.loadInterview(email, interviewId));
     }

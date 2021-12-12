@@ -81,7 +81,7 @@ public class PostController {
         return new BookmarkPostResponse(bookmarkedPostId);
     }
 
-    @GetMapping("/api/v1/post")
+    @GetMapping("/api/v1/post/{postId}")
     public LoadPostResponse<PostDetailDto> loadPostV1(@PathVariable("postId") Long postId, @AuthenticationPrincipal String email) {
         return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(email, postId));
     }
@@ -114,25 +114,25 @@ public class PostController {
         return new ReplyLikeResponse(request.getReplyId(), replyLikeId);
     }
 
-    @DeleteMapping("/api/v1/post/reply")
+    @DeleteMapping("/api/v1/post/reply/{replyId}")
     public DeleteReplyResponse deleteReplyV1(@PathVariable("replyId") Long replyId) {
         postService.replyDelete(replyId);
         return new DeleteReplyResponse(replyId);
     }
 
-    @PutMapping("/api/v1/post/reply")
+    @PutMapping("/api/v1/post/reply/{replyId}")
     public UpdateReplyResponse updateReplyV1(@PathVariable("replyId") Long replyId, @RequestBody @Valid UpdateReplyRequest request) {
         postService.replyUpdate(replyId, request.getReplyContent());
         return new UpdateReplyResponse(replyId);
     }
 
-    @DeleteMapping("/api/v1/post")
+    @DeleteMapping("/api/v1/post/{postId}")
     public DeletePostResponse deletePostV1(@PathVariable("postId") Long postId) {
         postService.delete(postId);
         return new DeletePostResponse(postId);
     }
 
-    @PutMapping("/api/v1/post")
+    @PutMapping("/api/v1/post/{postId}")
     public UpdatePostResponse updatePostV1(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
         postService.update(postId, request.getPostContent(), request.getPostTitle(), request.getPostCode());
         postService.updatePostTag(postId, request.getTagIds());
