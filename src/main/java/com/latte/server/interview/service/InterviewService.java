@@ -153,7 +153,7 @@ public class InterviewService {
         return new InterviewDetailDto(findInterview, bookmarkCount, isBookmarked, likeCount, isLiked);
     }
 
-
+    @Transactional
     public Long bookmarkInterview(Long interviewId, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -166,6 +166,7 @@ public class InterviewService {
         return interviewBookmarkId;
     }
 
+    @Transactional
     public Long likeInterview(Long interviewId, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -178,6 +179,7 @@ public class InterviewService {
         return interviewLikeId;
     }
 
+    @Transactional
     public Long requestSenior(Long interviewId, String title, String content, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);

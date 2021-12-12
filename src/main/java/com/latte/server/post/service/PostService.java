@@ -86,6 +86,7 @@ public class PostService {
         }
     }
 
+    @Transactional
     public void delete(Long postId) {
         Post findPost = postRepository.findById(postId).orElseThrow(NotFoundPostException::new);
 
@@ -151,6 +152,7 @@ public class PostService {
         findReply.changeReply(replyContent);
     }
 
+    @Transactional
     public void replyDelete(Long replyId) {
         Reply findReply = replyRepository.findById(replyId)
                 .orElseThrow(NotFoundReplyException::new);
@@ -225,6 +227,7 @@ public class PostService {
         return postRepository.searchMyPostPageRecent(condition, pageable);
     }
 
+    @Transactional
     public Long bookmarkPost(String email, Long postId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -237,6 +240,7 @@ public class PostService {
         return bookmarkedPostId;
     }
 
+    @Transactional
     public Long writePost(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -255,6 +259,7 @@ public class PostService {
         return postId;
     }
 
+    @Transactional
     public Long writeQna(String email, String postContent, String postTitle, String postCode, List<Long> postTags) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -273,6 +278,7 @@ public class PostService {
         return postId;
     }
 
+    @Transactional
     public Long writeReply(String email, Long postId, String replyContent) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);
@@ -285,6 +291,7 @@ public class PostService {
         return replyId;
     }
 
+    @Transactional
     public Long likeReply(String email, Long replyId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(NotFoundUserException::new);

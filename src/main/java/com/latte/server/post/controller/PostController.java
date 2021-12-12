@@ -18,6 +18,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,68 +33,60 @@ public class PostController {
 
     private final PostService postService;
 
-    @GetMapping("/api/v1/post/postListPopular")
-    public Page<PostListDto> postListPopularV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
-        Page<PostListDto> result = postService.searchRepositoryPostListPopular(condition, pageable, email);
-
-        return result;
-    }
-
-    @GetMapping("/api/v1/post/postListRecent")
-    public Page<PostListDto> postListRecentV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+    @GetMapping("/api/v1/post")
+    public Page<PostListDto> postListV1(@RequestParam("popular") boolean isPopular, PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        if (isPopular == true) {
+            Page<PostListDto> result = postService.searchRepositoryPostListPopular(condition, pageable, email);
+            return result;
+        }
         Page<PostListDto> result = postService.searchRepositoryPostListRecent(condition, pageable, email);
-
         return result;
     }
 
-    @GetMapping("/api/v1/post/searchPosts")
+    @GetMapping("/api/v1/post/search")
     public Page<PostListDto> searchPostsV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         Page<PostListDto> result = postService.searchRepositoryPostPage(condition, pageable, email);
 
         return result;
     }
 
-    @GetMapping("/api/v1/post/latestBookmarkedPosts")
+    @GetMapping("/api/v1/post/bookmarked")
     public Page<PostListDto> latestBookmarkedPostsV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         Page<PostListDto> result = postService.searchRepositoryBookmarkedPostPageRecent(condition, pageable, email);
 
         return result;
     }
 
-    @GetMapping("/api/v1/post/latestMyPosts")
+    @GetMapping("/api/v1/post/my-recent")
     public Page<PostListDto> latestMyPostsV1(PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         Page<PostListDto> result = postService.searchRepositoryMyPostPageRecent(condition, pageable, email);
 
         return result;
     }
 
-    @GetMapping("/api/v1/post/replyListRecent")
-    public Page<ReplyDto> replyListRecentV1(ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
-        Page<ReplyDto> result = postService.searchRepositoryReplyPageRecent(condition, pageable, email);
-
-        return result;
-    }
-
-    @GetMapping("/api/v1/post/replyListOld")
-    public Page<ReplyDto> replyListOldV1(ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+    @GetMapping("/api/v1/post/reply")
+    public Page<ReplyDto> replyListV1(@RequestParam("recent") boolean isRecent, ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+        if (isRecent == true) {
+            Page<ReplyDto> result = postService.searchRepositoryReplyPageRecent(condition, pageable, email);
+            return result;
+        }
         Page<ReplyDto> result = postService.searchRepositoryReplyPageOld(condition, pageable, email);
-
         return result;
     }
 
-    @PostMapping("/api/v1/post/postBookmark")
+    @PostMapping("/api/v1/post/bookmark")
     public BookmarkPostResponse postBookmarkV1(@RequestBody @Valid BookmarkPostRequest request, @AuthenticationPrincipal String email) {
         Long bookmarkedPostId = postService.bookmarkPost(email, request.getPostId());
 
         return new BookmarkPostResponse(bookmarkedPostId);
     }
 
-    @GetMapping("/api/v1/post/readPost")
+    @GetMapping("/api/v1/post")
     public LoadPostResponse<PostDetailDto> loadPostV1(@PathVariable("postId") Long postId, @AuthenticationPrincipal String email) {
         return new LoadPostResponse<>(LOADED_POST_SIZE, postService.loadPost(email, postId));
     }
 
-    @PostMapping("/api/v1/post/writePost")
+    @PostMapping("/api/v1/post")
     public CreatePostResponse postV1(@RequestBody @Valid CreatePostRequest request, @AuthenticationPrincipal String email) {
         Long postId = postService.writePost(email, request.getPostContent(), request.getPostTitle(), request.getPostCode(), request.getPostTags());
 
@@ -114,43 +107,43 @@ public class PostController {
         return new CreateReplyResponse(request.getPostId(), replyId);
     }
 
-    @PostMapping("/api/v1/post/replyLike")
+    @PostMapping("/api/v1/post/reply-like")
     public ReplyLikeResponse replyLikeV1(@RequestBody @Valid ReplyLikeRequest request, @AuthenticationPrincipal String email) {
         Long replyLikeId = postService.likeReply(email, request.getReplyId());
 
         return new ReplyLikeResponse(request.getReplyId(), replyLikeId);
     }
 
-    @PostMapping("/api/v1/post/deleteReply")
-    public DeleteReplyResponse deleteReplyV1(@RequestBody @Valid DeleteReplyRequest request) {
-        postService.replyDelete(request.getReplyId());
-        return new DeleteReplyResponse(request.getReplyId());
+    @DeleteMapping("/api/v1/post/reply")
+    public DeleteReplyResponse deleteReplyV1(@PathVariable("replyId") Long replyId) {
+        postService.replyDelete(replyId);
+        return new DeleteReplyResponse(replyId);
     }
 
-    @PutMapping("/api/v1/post/updateReply")
+    @PutMapping("/api/v1/post/reply")
     public UpdateReplyResponse updateReplyV1(@PathVariable("replyId") Long replyId, @RequestBody @Valid UpdateReplyRequest request) {
         postService.replyUpdate(replyId, request.getReplyContent());
         return new UpdateReplyResponse(replyId);
     }
 
-    @PostMapping("/api/v1/post/deletePost")
-    public DeletePostResponse deletePostV1(@RequestBody @Valid DeletePostRequest request) {
-        postService.delete(request.getPostId());
-        return new DeletePostResponse(request.getPostId());
+    @DeleteMapping("/api/v1/post")
+    public DeletePostResponse deletePostV1(@PathVariable("postId") Long postId) {
+        postService.delete(postId);
+        return new DeletePostResponse(postId);
     }
 
-    @PutMapping("/api/v1/post/updatePost")
+    @PutMapping("/api/v1/post")
     public UpdatePostResponse updatePostV1(@PathVariable("postId") Long postId, @RequestBody @Valid UpdatePostRequest request) {
         postService.update(postId, request.getPostContent(), request.getPostTitle(), request.getPostCode());
         postService.updatePostTag(postId, request.getTagIds());
         return new UpdatePostResponse(postId);
     }
 
-    @GetMapping("/api/v1/post/latestBookmark")
+    @GetMapping("/api/v1/post/bookmark-one")
     public LatestBookmarkResponse<PostListDto> latestOnePostBookmarkV1(@AuthenticationPrincipal String email) {
         return new LatestBookmarkResponse<>(POST_LIST_SIZE, postService.latestBookmark(email));
     }
-    @GetMapping("/api/v1/post/latestWriting")
+    @GetMapping("/api/v1/post/my-post-one")
     public LatestWritingResponse<PostListDto> latestOnePostWritingV1(@AuthenticationPrincipal String email) {
         return new LatestWritingResponse<>(POST_LIST_SIZE, postService.latestWriting(email));
     }
