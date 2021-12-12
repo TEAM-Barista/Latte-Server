@@ -57,7 +57,7 @@ public class InterviewController {
     }
 
     @GetMapping("/api/v1/interview")
-    public Page<InterviewListDto> interviewListRecommendV1(@RequestParam("recommend") Boolean isRecommend, InterviewSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+    public Page<InterviewListDto> interviewListV1(@RequestParam(name = "recommend", defaultValue = "false") Boolean isRecommend, InterviewSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         if (isRecommend == true) {
             Page<InterviewListDto> result = interviewService.searchRepositoryInterviewPageRecommend(condition, pageable, email);
             return result;

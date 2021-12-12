@@ -34,7 +34,7 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/api/v1/post")
-    public Page<PostListDto> postListV1(@RequestParam("popular") boolean isPopular, PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+    public Page<PostListDto> postListV1(@RequestParam(name = "popular", defaultValue = "false") boolean isPopular, PostSearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         if (isPopular == true) {
             Page<PostListDto> result = postService.searchRepositoryPostListPopular(condition, pageable, email);
             return result;
@@ -65,7 +65,7 @@ public class PostController {
     }
 
     @GetMapping("/api/v1/post/reply")
-    public Page<ReplyDto> replyListV1(@RequestParam("recent") boolean isRecent, ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
+    public Page<ReplyDto> replyListV1(@RequestParam(name = "recent", defaultValue = "false") boolean isRecent, ReplySearchCondition condition, Pageable pageable, @AuthenticationPrincipal String email) {
         if (isRecent == true) {
             Page<ReplyDto> result = postService.searchRepositoryReplyPageRecent(condition, pageable, email);
             return result;
