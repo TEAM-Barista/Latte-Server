@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +34,7 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
 
     private long accessTokenValidSecond = 1000L * 60 * 60; // 1시간만 토큰 유효
     private long refreshTokenValidSecond = 1000L * 60 * 60 * 24; // 1시간만 토큰 유효
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final UserDetailsService userDetailsService;
 
@@ -46,6 +48,10 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("role", role);
         Date now = new Date();
+        System.out.println("지금 시간");
+        System.out.println(simpleDateFormat.format(now));
+        System.out.println("액세스 토큰");
+        System.out.println(simpleDateFormat.format(new Date(now.getTime() + accessTokenValidSecond)));
         return Jwts.builder()
                 .setClaims(claims) // 데이터
                 .setIssuedAt(now) // 토큰 발행일자
@@ -57,6 +63,10 @@ public class JwtTokenProvider { // JWT 토큰을 생성 및 검증 모듈
     // Jwt Refresh 토큰 생성
     public String createRefreshToken() {
         Date now = new Date();
+        System.out.println("지금 시간");
+        System.out.println(simpleDateFormat.format(now));
+        System.out.println("액세스 토큰");
+        System.out.println(simpleDateFormat.format(new Date(now.getTime() + refreshTokenValidSecond)));
         return Jwts.builder()
                 .setIssuedAt(now) // 토큰 발행일자
                 .setExpiration(new Date(now.getTime() + refreshTokenValidSecond)) // set Expire Time
